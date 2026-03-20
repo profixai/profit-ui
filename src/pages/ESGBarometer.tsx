@@ -8,7 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceLine, Area, ComposedChart } from "recharts";
-import { Leaf, Zap, Droplets, Trash2, ChevronDown, ArrowRight, AlertTriangle, Info } from "lucide-react";
+import { Leaf, Zap, Droplets, Trash2, ChevronDown, ArrowRight, AlertTriangle, Info, MessageCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { AskProfixPanel } from "@/components/AskProfixPanel";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   type HotelCategory,
