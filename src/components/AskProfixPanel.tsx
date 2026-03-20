@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
-const suggestedPrompts = [
+const defaultPrompts = [
   "Why did our margins drop in October?",
   "What are our biggest cost drivers this quarter?",
   "How many nights were below breakeven last year?",
@@ -16,10 +17,35 @@ interface Message {
   content: string;
 }
 
-export const AskProfixPanel = () => {
-  const [open, setOpen] = useState(false);
+interface AskProfixPanelProps {
+  externalOpen?: boolean;
+  onClose?: () => void;
+  prefillQuestion?: string;
+  contextLabel?: string;
+}
+
+export const AskProfixPanel = ({
+  externalOpen,
+  onClose,
+  prefillQuestion,
+  contextLabel,
+}: AskProfixPanelProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = (v: boolean) => {
+    if (!v && onClose) onClose();
+    setInternalOpen(v);
+  };
+
+  // Handle prefilled questions
+  useEffect(() => {
+    if (open && prefillQuestion) {
+      setInput(prefillQuestion);
+    }
+  }, [open, prefillQuestion]);
 
   const handleSend = (text?: string) => {
     const msg = text || input;
@@ -37,7 +63,7 @@ export const AskProfixPanel = () => {
 
   return (
     <>
-      {!open && (
+      {externalOpen === undefined && !open && (
         <motion.button
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -67,11 +93,19 @@ export const AskProfixPanel = () => {
               </Button>
             </div>
 
+            {contextLabel && (
+              <div className="px-4 py-2 border-b bg-muted/30">
+                <Badge variant="outline" className="text-[10px]">
+                  Context: {contextLabel}
+                </Badge>
+              </div>
+            )}
+
             <div className="flex-1 overflow-auto p-4 space-y-3">
               {messages.length === 0 ? (
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">Ask me anything about your data:</p>
-                  {suggestedPrompts.map((prompt) => (
+                  {defaultPrompts.map((prompt) => (
                     <button
                       key={prompt}
                       onClick={() => handleSend(prompt)}

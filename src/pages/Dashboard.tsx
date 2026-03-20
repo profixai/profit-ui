@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, ArrowUpRight, AlertTriangle } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { mockKPIs, mockMonthlyMargin, mockCostDrivers, mockDepartmentCosts, mockBreakeven } from "@/lib/mock-data";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, ReferenceLine
 } from "recharts";
 import { AppShell } from "@/components/AppShell";
+import { AskProfixPanel } from "@/components/AskProfixPanel";
+import { ExplainButton } from "@/components/ExplainButton";
 
 const formatCurrency = (v: number) => {
   if (v >= 1_000_000) return `€${(v / 1_000_000).toFixed(1)}M`;
@@ -30,6 +33,16 @@ const DeltaBadge = ({ value }: { value: number }) => {
 const DEPT_COLORS = ["#0D4F5C", "#1A7A4A", "#E8A838", "#C0392B", "#6B6B6B", "#3B82F6"];
 
 const Dashboard = () => {
+  const [askOpen, setAskOpen] = useState(false);
+  const [askPrefill, setAskPrefill] = useState("");
+  const [askContext, setAskContext] = useState("");
+
+  const openAsk = (question: string, context: string) => {
+    setAskPrefill(question);
+    setAskContext(context);
+    setAskOpen(true);
+  };
+
   const kpis = [
     { label: "Total Revenue", value: formatCurrency(mockKPIs.total_revenue), delta: mockKPIs.revenue_delta },
     { label: "Total Costs", value: formatCurrency(mockKPIs.total_costs), delta: mockKPIs.costs_delta, invertColor: true },
@@ -41,22 +54,28 @@ const Dashboard = () => {
     <AppShell>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* KPI Strip */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpis.map((kpi, i) => (
-            <motion.div
-              key={kpi.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="bg-card rounded-lg border p-4"
-            >
-              <p className="text-xs text-muted-foreground font-medium">{kpi.label}</p>
-              <p className="text-2xl font-bold font-mono-data mt-1">{kpi.value}</p>
-              <div className="mt-1">
-                <DeltaBadge value={kpi.invertColor ? -kpi.delta : kpi.delta} />
-              </div>
-            </motion.div>
-          ))}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Key Performance Indicators</h2>
+            <ExplainButton onClick={() => openAsk("Explain the current KPIs — what drove revenue and cost changes this period?", "Dashboard – KPIs")} />
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {kpis.map((kpi, i) => (
+              <motion.div
+                key={kpi.label}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="bg-card rounded-lg border p-4"
+              >
+                <p className="text-xs text-muted-foreground font-medium">{kpi.label}</p>
+                <p className="text-2xl font-bold font-mono-data mt-1">{kpi.value}</p>
+                <div className="mt-1">
+                  <DeltaBadge value={kpi.invertColor ? -kpi.delta : kpi.delta} />
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         {/* Margin Trend */}
@@ -71,7 +90,10 @@ const Dashboard = () => {
               <h2 className="text-sm font-semibold">GOP Margin Trend</h2>
               <p className="text-xs text-muted-foreground">Monthly gross operating profit margin</p>
             </div>
-            <span className="text-xs text-muted-foreground border rounded px-2 py-0.5">Target: 25%</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground border rounded px-2 py-0.5">Target: 25%</span>
+              <ExplainButton onClick={() => openAsk("Explain why GOP margin dropped in October and which costs changed the most.", "Dashboard – Margin Trend")} />
+            </div>
           </div>
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={mockMonthlyMargin}>
@@ -112,7 +134,10 @@ const Dashboard = () => {
             transition={{ delay: 0.3 }}
             className="lg:col-span-3 bg-card rounded-lg border p-5"
           >
-            <h2 className="text-sm font-semibold mb-3">Top Cost Drivers</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold">Top Cost Drivers</h2>
+              <ExplainButton onClick={() => openAsk("Analyse the top cost drivers — which accounts have the highest anomalies and what should we do about them?", "Dashboard – Cost Drivers")} />
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -191,7 +216,10 @@ const Dashboard = () => {
           transition={{ delay: 0.4 }}
           className="bg-card rounded-lg border p-5"
         >
-          <h2 className="text-sm font-semibold mb-3">Breakeven Analysis</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold">Breakeven Analysis</h2>
+            <ExplainButton onClick={() => openAsk("Explain our breakeven position — what would it take to reduce the breakeven occupancy rate?", "Dashboard – Breakeven")} />
+          </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <div>
               <p className="text-4xl font-bold font-mono-data text-primary">{mockBreakeven.breakeven_occupancy_pct}%</p>
@@ -245,6 +273,13 @@ const Dashboard = () => {
           </span>
         </motion.div>
       </div>
+
+      <AskProfixPanel
+        externalOpen={askOpen}
+        onClose={() => setAskOpen(false)}
+        prefillQuestion={askPrefill}
+        contextLabel={askContext}
+      />
     </AppShell>
   );
 };

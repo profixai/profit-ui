@@ -256,9 +256,9 @@ export default function ESGBarometer() {
     <AppShell>
       <div className="max-w-6xl mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">ESG Barometer</h1>
+         <h1 className="text-2xl font-bold tracking-tight">ESG & SDGs — Scientific Indicators</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Location-aware ESG scoring based on global hospitality benchmarks
+            CO₂, energy and water intensity benchmarked against global hospitality references
           </p>
         </div>
 
