@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import UploadPage from "./pages/Upload";
 import Roadmap from "./pages/Roadmap";
 import Settings from "./pages/Settings";
+import ESGBarometer from "./pages/ESGBarometer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/roadmap" element={<Roadmap />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/esg" element={<ESGBarometer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

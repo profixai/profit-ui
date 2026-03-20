@@ -4,6 +4,7 @@ import {
   Map,
   Settings,
   FileText,
+  Leaf,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -25,6 +26,7 @@ const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Upload", url: "/upload", icon: Upload },
   { title: "Roadmap", url: "/roadmap", icon: Map },
+  { title: "ESG Barometer", url: "/esg", icon: Leaf },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
