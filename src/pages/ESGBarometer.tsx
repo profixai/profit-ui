@@ -198,6 +198,7 @@ function DimensionCard({
 
 // ─── Main Page ───────────────────────────────────────────────────
 export default function ESGBarometer() {
+  const [askOpen, setAskOpen] = useState(false);
   const [setup, setSetup] = useState<{
     country: string;
     category: HotelCategory;
