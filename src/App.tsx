@@ -26,6 +26,7 @@ const App = () => (
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/roadmap" element={<Roadmap />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/esg" element={<ESGBarometer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

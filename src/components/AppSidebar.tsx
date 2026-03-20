@@ -26,6 +26,7 @@ const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Upload", url: "/upload", icon: Upload },
   { title: "Roadmap", url: "/roadmap", icon: Map },
+  { title: "ESG Barometer", url: "/esg", icon: Leaf },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
