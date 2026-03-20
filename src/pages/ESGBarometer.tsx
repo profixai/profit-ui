@@ -465,9 +465,35 @@ export default function ESGBarometer() {
                 </CollapsibleContent>
               </Card>
             </Collapsible>
+
+            {/* Ask Profix ESG button */}
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => setAskOpen(true)}
+              >
+                <MessageCircle className="h-4 w-4" /> Ask Profix about our ESG position
+              </Button>
+            </div>
+
+            {/* Benchmark Sources Footer */}
+            <div className="rounded-lg bg-muted/50 border border-border/50 px-4 py-3">
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                Benchmarks sourced from HCMI / Sustainable Hospitality Alliance, IEA Emission Factors 2025, HWMI / Made Blue 2024,
+                Hotel Yearbook 2025, and UNWTO SDG Tourism Framework. Updated annually.
+              </p>
+            </div>
           </motion.div>
         )}
       </div>
+
+      <AskProfixPanel
+        externalOpen={askOpen}
+        onClose={() => setAskOpen(false)}
+        prefillQuestion="Explain our current ESG score and which actions move it most."
+        contextLabel="ESG & SDGs"
+      />
     </AppShell>
   );
 }

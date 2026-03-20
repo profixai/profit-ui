@@ -24,9 +24,9 @@ import {
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Upload", url: "/upload", icon: Upload },
   { title: "Roadmap", url: "/roadmap", icon: Map },
   { title: "ESG & SDGs", url: "/esg", icon: Leaf },
+  { title: "Data & Uploads", url: "/upload", icon: Upload },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
