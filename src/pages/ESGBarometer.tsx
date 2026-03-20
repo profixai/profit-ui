@@ -11,7 +11,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceLine, Area, Comp
 import { Leaf, Zap, Droplets, Trash2, ChevronDown, ArrowRight, AlertTriangle, Info, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AskProfixPanel } from "@/components/AskProfixPanel";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   type HotelCategory,
   COUNTRY_OPTIONS,
