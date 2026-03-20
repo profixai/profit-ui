@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import UploadPage from "./pages/Upload";
 import Roadmap from "./pages/Roadmap";
 import Settings from "./pages/Settings";
+import ESGBarometer from "./pages/ESGBarometer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
