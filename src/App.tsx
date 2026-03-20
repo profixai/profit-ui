@@ -4,11 +4,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import UploadPage from "./pages/Upload";
-import Roadmap from "./pages/Roadmap";
+import Ledger from "./pages/Ledger";
+import MaterialityMatrix from "./pages/MaterialityMatrix";
+import CAPEXRoadmap from "./pages/CAPEXRoadmap";
+import DataVault from "./pages/DataVault";
+import Reporting from "./pages/Reporting";
 import Settings from "./pages/Settings";
-import ESGBarometer from "./pages/ESGBarometer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,13 +21,14 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Navigate to="/ledger" replace />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/roadmap" element={<Roadmap />} />
+          <Route path="/ledger" element={<Ledger />} />
+          <Route path="/materiality" element={<MaterialityMatrix />} />
+          <Route path="/roadmap" element={<CAPEXRoadmap />} />
+          <Route path="/data" element={<DataVault />} />
+          <Route path="/reporting" element={<Reporting />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/esg" element={<ESGBarometer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

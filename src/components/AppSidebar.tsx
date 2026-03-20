@@ -1,10 +1,11 @@
 import {
-  LayoutDashboard,
-  Upload,
+  BookOpen,
+  Grid3X3,
   Map,
-  Settings,
+  Database,
   FileText,
-  Leaf,
+  Settings,
+  FileSpreadsheet,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -23,24 +24,24 @@ import {
 } from "@/components/ui/sidebar";
 
 const navItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Roadmap", url: "/roadmap", icon: Map },
-  { title: "ESG & SDGs", url: "/esg", icon: Leaf },
-  { title: "Data & Uploads", url: "/upload", icon: Upload },
+  { title: "The Ledger", url: "/ledger", icon: BookOpen },
+  { title: "Materiality Matrix", url: "/materiality", icon: Grid3X3 },
+  { title: "CAPEX Roadmap", url: "/roadmap", icon: Map },
+  { title: "Data Vault", url: "/data", icon: Database },
+  { title: "Reporting (CSRD)", url: "/reporting", icon: FileText },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
-const mockUploads = [
-  { name: "PL_Q4_2024.xlsx", date: "15 Mar 2026", status: "processed" },
-  { name: "PL_Q3_2024.xlsx", date: "10 Jan 2026", status: "processed" },
-  { name: "Utilities_2024.csv", date: "8 Jan 2026", status: "processed" },
+const recentUploads = [
+  { name: "PL_Q4_2025.xlsx", date: "6 Jan 2026" },
+  { name: "Utilities_Q4_2025.csv", date: "7 Jan 2026" },
+  { name: "PL_Q3_2025.xlsx", date: "3 Oct 2025" },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const isActive = (path: string) => location.pathname === path;
 
   return (
     <Sidebar collapsible="icon">
@@ -58,7 +59,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider">
-            {!collapsed && "Navigation"}
+            {!collapsed && "Platform"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -88,9 +89,9 @@ export function AppSidebar() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <div className="space-y-1 px-2">
-                {mockUploads.map((upload) => (
+                {recentUploads.map((upload) => (
                   <div key={upload.name} className="flex items-start gap-2 py-1.5">
-                    <FileText className="h-3.5 w-3.5 mt-0.5 text-sidebar-muted shrink-0" />
+                    <FileSpreadsheet className="h-3.5 w-3.5 mt-0.5 text-sidebar-muted shrink-0" />
                     <div className="min-w-0">
                       <p className="text-xs text-sidebar-foreground truncate">{upload.name}</p>
                       <p className="text-[10px] text-sidebar-muted">{upload.date}</p>
