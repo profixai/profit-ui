@@ -1,4 +1,5 @@
 import {
+  LayoutDashboard,
   BookOpen,
   Grid3X3,
   Map,
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const navItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "The Ledger", url: "/ledger", icon: BookOpen },
   { title: "Materiality Matrix", url: "/materiality", icon: Grid3X3 },
   { title: "CAPEX Roadmap", url: "/roadmap", icon: Map },
@@ -41,7 +43,6 @@ const recentUploads = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const location = useLocation();
 
   return (
     <Sidebar collapsible="icon">
