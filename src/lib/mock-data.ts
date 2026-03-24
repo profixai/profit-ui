@@ -392,3 +392,83 @@ export const mockVaultFiles: VaultFile[] = [
     ],
   },
 ];
+
+// ─── Insights Response (Dashboard contract) ──────────────────────
+export interface InsightsResponse {
+  job_id: string;
+  filename: string;
+  period_start: string;
+  period_end: string;
+  monthly_margins: typeof mockMonthlyMargin;
+  cost_drivers: typeof mockCostDrivers;
+  department_costs: typeof mockDepartmentCosts;
+  breakeven: typeof mockBreakeven;
+  kpis: typeof mockKPIs;
+}
+
+export const mockInsightsResponse: InsightsResponse = {
+  job_id: "job-a1b2c3d4",
+  filename: "f5.tables.xlsx",
+  period_start: "2024-01",
+  period_end: "2024-12",
+  monthly_margins: mockMonthlyMargin,
+  cost_drivers: mockCostDrivers,
+  department_costs: mockDepartmentCosts,
+  breakeven: mockBreakeven,
+  kpis: mockKPIs,
+};
+
+// ─── Inline AI Responses ─────────────────────────────────────────
+export const mockAIResponses: Record<string, string> = {
+  "kpi-total-revenue": "Total Revenue is <b>€3.51M</b> this period, up 6.2% vs prior. Growth was driven by strong summer occupancy (Jul–Aug) with RevPAR peaking at €142. Shoulder months (Sep–Nov) underperformed by 8%.",
+  "kpi-total-costs": "Total Costs reached <b>€2.06M</b>, up 3.8%. The main increase came from <b>Electricity (+38.2%)</b> and Rooms Labor (+4.2%). F&B Labor actually decreased 2.1%, partially offsetting the rise.",
+  "kpi-gop": "GOP is <b>€1.45M</b>, up 9.1% vs prior period. This outpaced cost growth thanks to revenue gains in peak months. However, October's margin dip to 33.1% dragged the annual average down.",
+  "kpi-gop-margin": "GOP Margin is <b>28.4%</b> this period. It dropped 3.1 pts vs last quarter, driven primarily by a <b>22% increase in Labor</b> and 18% increase in Utilities. The Revenue side was flat. See cost drivers below for detail.",
+  "margin-trend": "The margin trend shows a <b>seasonal V-shape</b>: peak in July (45.0%), sharp decline in October (33.1%), partial recovery in December (43.0%). October's drop was caused by a €6,300 spike in utility costs combined with a 10% revenue decline from summer highs.",
+  "cost-breakdown": "Your cost structure is <b>labor-heavy at 40%</b> of total costs (Rooms + F&B + Admin labor combined). Utilities represent 12.4% but grew fastest at +38.2%. The USALI mid-scale benchmark for Labor is 35–38% of revenue — you're above that range.",
+  "breakeven": "You are currently <b>above your breakeven point</b>, which is healthy. However, you had <b>14 nights below breakeven</b>, concentrated in September. If utility costs rise by 10% next quarter and occupancy remains at 65%, you would spend 22 nights below breakeven.",
+  "dept-Rooms": "<b>Rooms department</b> represents 32% of total costs (€48.2K). Labor is the dominant component at €38K. Compared to USALI benchmarks for mid-scale hotels, your Rooms labor ratio is slightly above average.",
+  "dept-Food & Beverage": "<b>F&B department</b> is 28.5% of costs. Cost of Sales (€21K) and Labor (€22K) are nearly equal. F&B CoS at 13.9% of total is in line with industry norms.",
+  "dept-Utilities": "<b>Utilities</b> at 12.4% are concerning — electricity alone spiked 38.2%. This correlates with the Q3 peak season but also suggests potential inefficiency. Consider smart HVAC controls.",
+  "driver-Electricity": "<b>Electricity</b> at €11.2K (7.4% of costs) spiked <b>38.2% vs prior period</b>. This is a significant anomaly. Possible causes: seasonal cooling demand, rate increases, or equipment inefficiency. Recommend reviewing the utility upload for meter-level detail.",
+};
+
+  {
+    id: "f1", name: "PL_Q4_2025.xlsx", type: "pl", uploadedAt: "2026-01-06",
+    period: "Q4 2025", rows: 1170, status: "processed", anomalies: [],
+  },
+  {
+    id: "f2", name: "Utilities_Q4_2025.csv", type: "utility", uploadedAt: "2026-01-07",
+    period: "Q4 2025", rows: 48, status: "processed", anomalies: [],
+  },
+  {
+    id: "f3", name: "PL_Q3_2025.xlsx", type: "pl", uploadedAt: "2025-10-03",
+    period: "Q3 2025", rows: 1165, status: "processed", anomalies: [],
+  },
+  {
+    id: "f4", name: "Utilities_Q3_2025.csv", type: "utility", uploadedAt: "2025-10-04",
+    period: "Q3 2025", rows: 52, status: "processed",
+    anomalies: [
+      { row: 34, field: "water_m3", message: "Q3 water bill implies 520 L/guest-night — a 31.6% spike from Q2. Possible leak or data entry error.", severity: "critical" },
+    ],
+  },
+  {
+    id: "f5", name: "PL_Q2_2025.xlsx", type: "pl", uploadedAt: "2025-07-04",
+    period: "Q2 2025", rows: 1180, status: "processed", anomalies: [],
+  },
+  {
+    id: "f6", name: "Utilities_Q2_2025.csv", type: "utility", uploadedAt: "2025-07-05",
+    period: "Q2 2025", rows: 45, status: "processed", anomalies: [],
+  },
+  {
+    id: "f7", name: "PL_Q1_2025.xlsx", type: "pl", uploadedAt: "2025-04-05",
+    period: "Q1 2025", rows: 1150, status: "processed", anomalies: [],
+  },
+  {
+    id: "f8", name: "Utilities_Q1_2025.csv", type: "utility", uploadedAt: "2025-04-06",
+    period: "Q1 2025", rows: 44, status: "processed",
+    anomalies: [
+      { row: 12, field: "kwh", message: "Electricity reading 15% higher than seasonal norm. Verify meter reading.", severity: "warning" },
+    ],
+  },
+];
