@@ -48,9 +48,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-md bg-sidebar-ring flex items-center justify-center">
-            <span className="text-sm font-bold text-sidebar-background">P</span>
-          </div>
+          <img src="/profix-logo.svg" alt="Profix" className="h-8 w-8" />
           {!collapsed && (
             <span className="text-lg font-bold text-sidebar-primary tracking-tight">Profix</span>
           )}
