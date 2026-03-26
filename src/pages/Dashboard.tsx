@@ -7,6 +7,7 @@ import { MarginTrendChart } from "@/components/dashboard/MarginTrendChart";
 import { CostBreakdownSection } from "@/components/dashboard/CostBreakdownSection";
 import { BreakevenCard } from "@/components/dashboard/BreakevenCard";
 import { MonthlyDetailTable } from "@/components/dashboard/MonthlyDetailTable";
+import { HeadlineRow } from "@/components/dashboard/HeadlineRow";
 
 const formatCurrency = (v: number) => {
   if (v >= 1_000_000) return `€${(v / 1_000_000).toFixed(2)}M`;
@@ -45,6 +46,15 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
+
+        {/* Headline Row */}
+        <HeadlineRow
+          period="Q4 2024"
+          gop={formatCurrency(d.kpis.gop)}
+          marginPct={d.kpis.gop_margin_pct}
+          marginDelta={d.kpis.margin_delta}
+          verdict="Strongest quarter since Q2 — F&B recovery led the gain"
+        />
 
         {/* KPI Strip */}
         <div>
