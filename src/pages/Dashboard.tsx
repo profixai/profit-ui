@@ -7,6 +7,7 @@ import { MarginTrendChart } from "@/components/dashboard/MarginTrendChart";
 import { CostBreakdownSection } from "@/components/dashboard/CostBreakdownSection";
 import { BreakevenCard } from "@/components/dashboard/BreakevenCard";
 import { MonthlyDetailTable } from "@/components/dashboard/MonthlyDetailTable";
+import { HeadlineRow } from "@/components/dashboard/HeadlineRow";
 
 const formatCurrency = (v: number) => {
   if (v >= 1_000_000) return `€${(v / 1_000_000).toFixed(2)}M`;
