@@ -12,47 +12,49 @@ interface MarginTrendChartProps {
 
 export const MarginTrendChart = ({ data, target = 25, active, onClickPoint }: MarginTrendChartProps) => (
   <motion.div
-    initial={{ opacity: 0, y: 12 }}
+    initial={{ opacity: 0, y: 8 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.15 }}
-    className={`bg-card rounded-lg border p-5 transition-shadow ${active ? "ring-2 ring-primary/30" : ""}`}
+    transition={{ delay: 0.12, duration: 0.3 }}
+    className={`bg-card rounded-lg border p-5 transition-all ${active ? "ring-1 ring-primary/20 shadow-sm" : ""}`}
   >
-    <div className="flex items-center justify-between mb-4">
-      <div>
-        <h2 className="text-sm font-semibold">GOP Margin Trend</h2>
-        <p className="text-xs text-muted-foreground">Monthly gross operating profit margin — click any point</p>
-      </div>
-      <span className="text-xs text-muted-foreground border rounded px-2 py-0.5">Target: {target}%</span>
+    <div className="flex items-baseline justify-between mb-5">
+      <h2 className="text-sm font-semibold text-foreground">GOP Margin</h2>
+      <span className="text-[11px] text-muted-foreground font-mono-data">Target {target}%</span>
     </div>
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={240}>
       <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(35, 12%, 89%)" />
+        <CartesianGrid vertical={false} stroke="hsl(220, 12%, 91%)" strokeDasharray="0" />
         <XAxis
           dataKey="month"
           tickFormatter={(v) => v.split("-")[1]}
-          tick={{ fontSize: 11, fill: "hsl(0, 0%, 42%)" }}
+          tick={{ fontSize: 10, fill: "hsl(220, 8%, 52%)" }}
+          axisLine={false}
+          tickLine={false}
         />
         <YAxis
           domain={[20, 55]}
           tickFormatter={(v) => `${v}%`}
-          tick={{ fontSize: 11, fill: "hsl(0, 0%, 42%)" }}
+          tick={{ fontSize: 10, fill: "hsl(220, 8%, 52%)" }}
+          axisLine={false}
+          tickLine={false}
+          width={36}
         />
         <Tooltip
           formatter={(value: number) => [`${value.toFixed(1)}%`, "GOP Margin"]}
-          labelFormatter={(label) => `Month: ${label}`}
-          contentStyle={{ fontSize: 12, borderRadius: 8 }}
+          labelFormatter={(label) => label}
+          contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(220, 12%, 91%)", boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}
         />
         <ReferenceLine
           y={target}
           stroke="hsl(37, 78%, 56%)"
-          strokeDasharray="6 4"
-          label={{ value: "Target", fontSize: 10, fill: "hsl(37, 78%, 56%)" }}
+          strokeDasharray="4 4"
+          strokeWidth={1}
         />
         <Line
           type="monotone"
           dataKey="gop_margin_pct"
-          stroke="hsl(189, 75%, 21%)"
-          strokeWidth={2.5}
+          stroke="hsl(218, 47%, 20%)"
+          strokeWidth={2}
           dot={(props: any) => {
             const { cx, cy, payload } = props;
             const belowTarget = payload.gop_margin_pct < target;
@@ -60,16 +62,20 @@ export const MarginTrendChart = ({ data, target = 25, active, onClickPoint }: Ma
               <circle
                 cx={cx}
                 cy={cy}
-                r={4}
-                fill={belowTarget ? "hsl(4, 70%, 46%)" : "hsl(189, 75%, 21%)"}
-                stroke="none"
+                r={3}
+                fill={belowTarget ? "hsl(0, 60%, 50%)" : "hsl(218, 47%, 20%)"}
+                stroke="white"
+                strokeWidth={1.5}
                 className="cursor-pointer"
                 onClick={() => onClickPoint(payload.month)}
               />
             );
           }}
           activeDot={{
-            r: 6,
+            r: 5,
+            stroke: "hsl(218, 47%, 20%)",
+            strokeWidth: 2,
+            fill: "white",
             onClick: (_: any, payload: any) => {
               if (payload?.payload?.month) onClickPoint(payload.payload.month);
             },

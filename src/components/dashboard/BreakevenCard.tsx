@@ -25,47 +25,45 @@ export const BreakevenCard = ({
 
   return (
     <motion.button
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.35 }}
+      transition={{ delay: 0.28, duration: 0.3 }}
       onClick={onClick}
-      className={`w-full text-left bg-card rounded-lg border-2 p-5 transition-shadow cursor-pointer ${
-        above ? "border-positive/40" : "border-destructive/40"
-      } ${active ? "ring-2 ring-primary/30 shadow-md" : "hover:shadow-sm"}`}
+      className={`w-full text-left bg-card rounded-lg border p-5 transition-all cursor-pointer ${
+        active ? "ring-1 ring-primary/20 shadow-sm" : "hover:border-primary/15"
+      }`}
     >
-      <h2 className="text-sm font-semibold mb-4">Breakeven Analysis</h2>
+      <h2 className="text-sm font-semibold mb-4">Breakeven</h2>
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-        <div className="space-y-1">
-          <p className="text-4xl font-bold font-mono-data text-primary">{breakeven_occupancy_pct}%</p>
-          <p className="text-xs text-muted-foreground">Breakeven occupancy</p>
-          <p className="text-xs text-muted-foreground">
-            Need <span className="font-medium text-foreground">{rooms_per_night_needed} rooms/night</span> to cover fixed costs
+        <div className="space-y-1 shrink-0">
+          <p className="text-3xl font-semibold font-mono-data text-foreground">{breakeven_occupancy_pct}%</p>
+          <p className="text-[11px] text-muted-foreground">
+            {rooms_per_night_needed} rooms/night required
           </p>
         </div>
         <div className="flex-1 w-full">
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-            <span>0%</span><span>100%</span>
-          </div>
-          <div className="h-4 bg-muted rounded-full relative overflow-hidden">
+          <div className="h-2 bg-muted rounded-full relative overflow-hidden">
             <div
-              className="absolute left-0 top-0 bottom-0 bg-primary rounded-full transition-all"
-              style={{ width: `${current_occupancy_pct}%` }}
+              className={`absolute left-0 top-0 bottom-0 rounded-full transition-all ${above ? "bg-positive" : "bg-destructive"}`}
+              style={{ width: `${Math.min(current_occupancy_pct, 100)}%` }}
             />
             <div
-              className="absolute top-0 bottom-0 w-0.5 bg-accent"
+              className="absolute top-0 bottom-0 w-px bg-foreground/40"
               style={{ left: `${breakeven_occupancy_pct}%` }}
             />
           </div>
-          <div className="flex items-center justify-between text-xs mt-1">
-            <span className="text-primary font-medium">Current: {current_occupancy_pct}% ({buffer > 0 ? "+" : ""}{buffer} pts)</span>
-            <span className="text-accent font-medium">Breakeven: {breakeven_occupancy_pct}%</span>
+          <div className="flex items-center justify-between text-[11px] mt-1.5">
+            <span className={`font-medium ${above ? "text-positive" : "text-destructive"}`}>
+              {current_occupancy_pct}% current ({buffer > 0 ? "+" : ""}{buffer} pts)
+            </span>
+            <span className="text-muted-foreground">{breakeven_occupancy_pct}% BE</span>
           </div>
         </div>
       </div>
       {months_below > 0 && (
-        <p className="text-xs text-destructive mt-3 flex items-center gap-1">
+        <p className="text-[11px] text-destructive mt-3 flex items-center gap-1">
           <AlertTriangle className="h-3 w-3" />
-          {months_below} of {total_months} months were below breakeven
+          {months_below}/{total_months} months below breakeven
         </p>
       )}
     </motion.button>

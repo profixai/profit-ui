@@ -1,24 +1,24 @@
 import { Bell, ChevronDown } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 
 export const TopBar = () => {
   return (
-    <header className="h-14 border-b bg-card flex items-center justify-between px-4 shrink-0">
-      <div className="flex items-center gap-3">
+    <header className="h-12 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-5 shrink-0">
+      <div className="flex items-center gap-4">
         <SidebarTrigger />
-        <div className="flex items-center gap-2 border rounded-md px-3 py-1.5 cursor-pointer hover:bg-muted/50 transition-colors">
-          <span className="text-sm font-medium">Le Grand Hôtel</span>
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+        <div className="flex items-center gap-1.5 cursor-pointer group">
+          <span className="text-sm font-semibold text-foreground">Le Grand Hôtel</span>
+          <ChevronDown className="h-3 w-3 text-muted-foreground group-hover:text-foreground transition-colors" />
         </div>
-        <div className="flex items-center gap-1 ml-2">
-          {["YTD 2024", "Q4 2024", "Dec 2024"].map((period, i) => (
+        <span className="text-border">|</span>
+        <div className="flex items-center gap-0.5">
+          {["YTD 2024", "Q4", "Dec"].map((period, i) => (
             <button
               key={period}
-              className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
+              className={`text-xs px-2.5 py-1 rounded-md transition-colors font-medium ${
                 i === 0
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               {period}
@@ -27,20 +27,20 @@ export const TopBar = () => {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-4 w-4" />
-          <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-accent text-[10px] font-bold flex items-center justify-center text-accent-foreground">
+      <div className="flex items-center gap-4">
+        <button className="relative p-1.5 rounded-md hover:bg-muted transition-colors">
+          <Bell className="h-4 w-4 text-muted-foreground" />
+          <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-destructive text-[9px] font-semibold flex items-center justify-center text-destructive-foreground">
             3
           </span>
-        </Button>
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-xs font-medium text-primary-foreground">JD</span>
+        </button>
+        <div className="flex items-center gap-2.5">
+          <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="text-[11px] font-semibold text-primary">JD</span>
           </div>
           <div className="hidden sm:block">
-            <p className="text-sm font-medium leading-none">Jean Dupont</p>
-            <p className="text-xs text-muted-foreground">General Manager</p>
+            <p className="text-xs font-medium leading-none text-foreground">J. Dupont</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">GM</p>
           </div>
         </div>
       </div>

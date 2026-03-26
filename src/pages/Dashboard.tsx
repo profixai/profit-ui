@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Upload } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { mockInsightsResponse, mockAIResponses } from "@/lib/mock-data";
 import { KPICard } from "@/components/dashboard/KPICard";
@@ -28,32 +26,29 @@ const Dashboard = () => {
   const aiContent = (key: string) => mockAIResponses[key] || "Analysis not available for this selection.";
 
   const kpis = [
-    { key: "kpi-total-revenue", label: "Total Revenue", value: formatCurrency(d.kpis.total_revenue), delta: d.kpis.revenue_delta },
-    { key: "kpi-total-costs", label: "Total Costs", value: formatCurrency(d.kpis.total_costs), delta: -d.kpis.costs_delta },
+    { key: "kpi-total-revenue", label: "Revenue", value: formatCurrency(d.kpis.total_revenue), delta: d.kpis.revenue_delta },
+    { key: "kpi-total-costs", label: "Costs", value: formatCurrency(d.kpis.total_costs), delta: -d.kpis.costs_delta },
     { key: "kpi-gop", label: "GOP", value: formatCurrency(d.kpis.gop), delta: d.kpis.gop_delta },
-    { key: "kpi-gop-margin", label: "GOP Margin", value: `${d.kpis.gop_margin_pct}%`, delta: d.kpis.margin_delta },
+    { key: "kpi-gop-margin", label: "Margin", value: `${d.kpis.gop_margin_pct}%`, delta: d.kpis.margin_delta },
   ];
 
   return (
     <AppShell>
-      <div className="max-w-7xl mx-auto space-y-4">
-        {/* Block 1: Header */}
-        <div className="flex items-center justify-between flex-wrap gap-2">
+      <div className="max-w-6xl mx-auto space-y-3 py-1">
+        {/* Header */}
+        <div className="flex items-baseline justify-between">
           <div>
-            <h1 className="text-lg font-bold">Le Grand Hôtel</h1>
-            <p className="text-xs text-muted-foreground">
-              {d.period_start} – {d.period_end} · <span className="font-mono-data">{d.filename}</span>
+            <h1 className="text-base font-semibold text-foreground">Performance Overview</h1>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              {d.period_start} – {d.period_end}
+              <span className="ml-2 font-mono-data">{d.filename}</span>
             </p>
           </div>
-          <Link to="/data" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline font-medium">
-            <Upload className="h-3.5 w-3.5" />
-            Re-upload
-          </Link>
         </div>
 
-        {/* Block 2: KPI Strip */}
+        {/* KPI Strip */}
         <div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
             {kpis.map((kpi, i) => (
               <KPICard
                 key={kpi.key}
@@ -72,7 +67,7 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Block 3: Margin Trend */}
+        {/* Margin Trend */}
         <div>
           <MarginTrendChart
             data={d.monthly_margins}
@@ -85,7 +80,7 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Block 4: Cost Breakdown */}
+        {/* Cost Breakdown */}
         <div>
           <CostBreakdownSection
             departments={d.department_costs}
@@ -100,7 +95,7 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Block 5: Breakeven */}
+        {/* Breakeven */}
         <div>
           <BreakevenCard
             {...d.breakeven}
@@ -113,7 +108,7 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Block 6: Monthly Detail */}
+        {/* Monthly Detail */}
         <MonthlyDetailTable data={d.monthly_margins} />
       </div>
     </AppShell>
