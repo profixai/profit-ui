@@ -4,12 +4,12 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { DeltaBadge } from "./DeltaBadge";
 
 const DEPT_COLORS = [
-  "hsl(189, 75%, 21%)",
-  "hsl(152, 63%, 29%)",
+  "hsl(218, 47%, 20%)",
+  "hsl(218, 35%, 36%)",
   "hsl(37, 78%, 56%)",
-  "hsl(4, 70%, 46%)",
-  "hsl(0, 0%, 42%)",
-  "hsl(217, 91%, 60%)",
+  "hsl(0, 60%, 50%)",
+  "hsl(220, 8%, 62%)",
+  "hsl(152, 44%, 38%)",
 ];
 
 const formatCurrency = (v: number) => {
@@ -28,16 +28,16 @@ interface CostBreakdownSectionProps {
 
 export const CostBreakdownSection = ({ departments, drivers, active, onClickSegment, onClickRow }: CostBreakdownSectionProps) => (
   <motion.div
-    initial={{ opacity: 0, y: 12 }}
+    initial={{ opacity: 0, y: 8 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.25 }}
-    className={`bg-card rounded-lg border p-5 transition-shadow ${active ? "ring-2 ring-primary/30" : ""}`}
+    transition={{ delay: 0.2, duration: 0.3 }}
+    className={`bg-card rounded-lg border p-5 transition-all ${active ? "ring-1 ring-primary/20 shadow-sm" : ""}`}
   >
     <div className="grid lg:grid-cols-5 gap-6">
       {/* Donut */}
       <div className="lg:col-span-2">
-        <h2 className="text-sm font-semibold mb-3">Cost by Department</h2>
-        <ResponsiveContainer width="100%" height={200}>
+        <h2 className="text-sm font-semibold mb-4">Cost by Department</h2>
+        <ResponsiveContainer width="100%" height={180}>
           <PieChart>
             <Pie
               data={departments}
@@ -45,9 +45,10 @@ export const CostBreakdownSection = ({ departments, drivers, active, onClickSegm
               nameKey="department"
               cx="50%"
               cy="50%"
-              innerRadius={55}
-              outerRadius={85}
+              innerRadius={58}
+              outerRadius={80}
               paddingAngle={2}
+              strokeWidth={0}
               onClick={(_, index) => onClickSegment(departments[index].department)}
               className="cursor-pointer"
             >
@@ -55,19 +56,19 @@ export const CostBreakdownSection = ({ departments, drivers, active, onClickSegm
                 <Cell key={i} fill={DEPT_COLORS[i % DEPT_COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
+            <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(220, 12%, 91%)" }} />
           </PieChart>
         </ResponsiveContainer>
-        <div className="space-y-1 mt-2">
+        <div className="space-y-0.5 mt-3">
           {departments.map((d, i) => (
             <button
               key={d.department}
               onClick={() => onClickSegment(d.department)}
-              className="flex items-center justify-between text-xs w-full hover:bg-muted/50 rounded px-1 py-0.5 transition-colors"
+              className="flex items-center justify-between text-[11px] w-full hover:bg-muted/40 rounded px-1.5 py-1 transition-colors"
             >
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full shrink-0" style={{ background: DEPT_COLORS[i % DEPT_COLORS.length] }} />
-                {d.department}
+                <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: DEPT_COLORS[i % DEPT_COLORS.length] }} />
+                <span className="text-foreground/70">{d.department}</span>
               </span>
               <span className="font-mono-data text-muted-foreground">{d.pct}%</span>
             </button>
@@ -77,15 +78,15 @@ export const CostBreakdownSection = ({ departments, drivers, active, onClickSegm
 
       {/* Cost Drivers Table */}
       <div className="lg:col-span-3">
-        <h2 className="text-sm font-semibold mb-3">Top Cost Drivers</h2>
-        <table className="w-full text-sm">
+        <h2 className="text-sm font-semibold mb-4">Top Cost Drivers</h2>
+        <table className="w-full text-[12px]">
           <thead>
             <tr className="border-b text-muted-foreground">
               <th className="text-left py-2 font-medium">Account</th>
-              <th className="text-left py-2 font-medium">Department</th>
+              <th className="text-left py-2 font-medium">Dept</th>
               <th className="text-right py-2 font-medium">Amount</th>
               <th className="text-right py-2 font-medium">Share</th>
-              <th className="text-right py-2 font-medium">Δ Prior</th>
+              <th className="text-right py-2 font-medium">Δ</th>
             </tr>
           </thead>
           <tbody>
@@ -93,17 +94,15 @@ export const CostBreakdownSection = ({ departments, drivers, active, onClickSegm
               <tr
                 key={d.rank}
                 onClick={() => onClickRow(d.account_name)}
-                className={`border-b last:border-0 cursor-pointer transition-colors ${
-                  d.delta_pct > 30 ? "bg-accent/10" : "hover:bg-muted/30"
-                }`}
+                className="border-b last:border-0 cursor-pointer hover:bg-muted/30 transition-colors"
               >
-                <td className="py-2.5 font-medium">{d.account_name}</td>
-                <td className="py-2.5 text-muted-foreground">{d.department}</td>
-                <td className="py-2.5 text-right font-mono-data">{formatCurrency(d.amount)}</td>
-                <td className="py-2.5 text-right font-mono-data">{d.pct_of_total_cost.toFixed(1)}%</td>
-                <td className="py-2.5 text-right">
+                <td className="py-2 font-medium text-foreground">{d.account_name}</td>
+                <td className="py-2 text-muted-foreground">{d.department}</td>
+                <td className="py-2 text-right font-mono-data">{formatCurrency(d.amount)}</td>
+                <td className="py-2 text-right font-mono-data text-muted-foreground">{d.pct_of_total_cost.toFixed(1)}%</td>
+                <td className="py-2 text-right">
                   <span className="inline-flex items-center gap-1">
-                    {d.delta_pct > 30 && <AlertTriangle className="h-3 w-3 text-accent" />}
+                    {d.delta_pct > 30 && <AlertTriangle className="h-3 w-3 text-destructive" />}
                     <DeltaBadge value={d.delta_pct} />
                   </span>
                 </td>
