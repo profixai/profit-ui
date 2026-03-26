@@ -47,6 +47,15 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Headline Row */}
+        <HeadlineRow
+          period="Q4 2024"
+          gop={formatCurrency(d.kpis.gop)}
+          marginPct={d.kpis.gop_margin_pct}
+          marginDelta={d.kpis.margin_delta}
+          verdict="Strongest quarter since Q2 — F&B recovery led the gain"
+        />
+
         {/* KPI Strip */}
         <div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
