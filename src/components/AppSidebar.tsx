@@ -7,9 +7,11 @@ import {
   FileText,
   Settings,
   FileSpreadsheet,
+  Send,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useIntegrationNavigation } from "@/hooks/useIntegrationNavigation";
 import {
   Sidebar,
   SidebarContent,
@@ -43,6 +45,7 @@ const recentUploads = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { goToTelegramIntegration } = useIntegrationNavigation();
 
   return (
     <Sidebar collapsible="icon">
@@ -104,12 +107,22 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3">
-        {!collapsed && (
-          <div className="flex items-center gap-2 px-2">
-            <div className="h-2 w-2 rounded-full bg-positive" />
-            <span className="text-xs text-sidebar-muted">Telegram connected</span>
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={goToTelegramIntegration}
+          className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-sidebar-accent/50 transition-colors w-full text-left"
+          aria-label="Open Telegram integration settings"
+        >
+          {collapsed ? (
+            <div className="h-2 w-2 rounded-full bg-positive mx-auto" />
+          ) : (
+            <>
+              <Send className="h-3.5 w-3.5 text-sidebar-muted shrink-0" />
+              <div className="h-2 w-2 rounded-full bg-positive shrink-0" />
+              <span className="text-xs text-sidebar-muted">Telegram connected</span>
+            </>
+          )}
+        </button>
       </SidebarFooter>
     </Sidebar>
   );
