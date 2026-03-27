@@ -1,10 +1,21 @@
+import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Send } from "lucide-react";
 
 const Settings = () => {
+  const location = useLocation();
+  const telegramRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (location.hash === "#telegram" && telegramRef.current) {
+      telegramRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [location.hash]);
+
   return (
     <AppShell>
       <div className="max-w-2xl mx-auto space-y-8">
@@ -41,29 +52,32 @@ const Settings = () => {
 
         <section className="space-y-4">
           <h2 className="text-sm font-semibold">Integrations</h2>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             {["PMS (Opera)", "POS (Micros)", "Accounting (Sage)"].map((sys) => (
               <div key={sys} className="border rounded-lg p-3 flex items-center justify-between">
                 <span className="text-sm">{sys}</span>
                 <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded">Coming soon</span>
               </div>
             ))}
-          </div>
-        </section>
 
-        <Separator />
-
-        <section className="space-y-4">
-          <h2 className="text-sm font-semibold">Telegram</h2>
-          <div className="flex items-center gap-3">
-            <div className="h-2 w-2 rounded-full bg-positive" />
-            <span className="text-sm">Connected as @ProfixAI_bot</span>
+            <div
+              id="telegram"
+              ref={telegramRef}
+              className="border rounded-lg p-3 flex items-center justify-between border-primary/30 bg-primary/5"
+            >
+              <div className="flex items-center gap-2">
+                <Send className="h-4 w-4 text-primary" />
+                <div>
+                  <span className="text-sm font-medium">Telegram</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="h-1.5 w-1.5 rounded-full bg-positive" />
+                    <span className="text-[10px] text-muted-foreground">Connected as @ProfixAI_bot</span>
+                  </div>
+                </div>
+              </div>
+              <span className="text-[10px] bg-positive/10 text-positive px-2 py-0.5 rounded font-medium">Active</span>
+            </div>
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <a href="https://t.me/ProfixAI_bot?start=PRX-1042" target="_blank" rel="noopener noreferrer">
-              Connect Telegram
-            </a>
-          </Button>
         </section>
       </div>
     </AppShell>

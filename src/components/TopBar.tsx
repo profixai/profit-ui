@@ -1,7 +1,11 @@
-import { Bell, ChevronDown } from "lucide-react";
+import { Bell, ChevronDown, Send } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useIntegrationNavigation } from "@/hooks/useIntegrationNavigation";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const TopBar = () => {
+  const { goToTelegramIntegration } = useIntegrationNavigation();
+
   return (
     <header className="h-12 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-5 shrink-0">
       <div className="flex items-center gap-4">
@@ -28,6 +32,19 @@ export const TopBar = () => {
       </div>
 
       <div className="flex items-center gap-4">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={goToTelegramIntegration}
+              aria-label="Open Telegram integration settings"
+              className="p-1.5 rounded-md hover:bg-muted transition-colors"
+            >
+              <Send className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>Telegram integration</TooltipContent>
+        </Tooltip>
         <button className="relative p-1.5 rounded-md hover:bg-muted transition-colors">
           <Bell className="h-4 w-4 text-muted-foreground" />
           <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-destructive text-[9px] font-semibold flex items-center justify-center text-destructive-foreground">
