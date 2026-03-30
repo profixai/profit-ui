@@ -1,68 +1,46 @@
 import {
   LayoutDashboard,
-  BookOpen,
-  Grid3X3,
-  Map,
-  Database,
-  FileText,
-  Settings,
-  FileSpreadsheet,
-  Send,
+  Sparkles,
+  Upload,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
-import { useIntegrationNavigation } from "@/hooks/useIntegrationNavigation";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
-  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "The Ledger", url: "/ledger", icon: BookOpen },
-  { title: "Materiality Matrix", url: "/materiality", icon: Grid3X3 },
-  { title: "CAPEX Roadmap", url: "/roadmap", icon: Map },
-  { title: "Data Vault", url: "/data", icon: Database },
-  { title: "Reporting (CSRD)", url: "/reporting", icon: FileText },
-  { title: "Settings", url: "/settings", icon: Settings },
-];
-
-const recentUploads = [
-  { name: "PL_Q4_2025.xlsx", date: "6 Jan 2026" },
-  { name: "Utilities_Q4_2025.csv", date: "7 Jan 2026" },
-  { name: "PL_Q3_2025.xlsx", date: "3 Oct 2025" },
+  { title: "AI Insights", url: "/insights", icon: Sparkles },
+  { title: "Data Upload", url: "/data", icon: Upload },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { goToTelegramIntegration } = useIntegrationNavigation();
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="p-4 flex items-center justify-center">
         <div className="flex items-center gap-2">
           <img src="/profix-logo.svg" alt="Profix" className="h-7 w-7" />
           {!collapsed && (
-            <span className="text-sm font-semibold text-sidebar-primary tracking-tight">Profix</span>
+            <span className="text-sm font-semibold text-sidebar-primary tracking-tight">
+              Profix
+            </span>
           )}
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="pt-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider">
-            {!collapsed && "Platform"}
-          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
@@ -83,47 +61,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {!collapsed && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider">
-              Recent uploads
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <div className="space-y-1 px-2">
-                {recentUploads.map((upload) => (
-                  <div key={upload.name} className="flex items-start gap-2 py-1.5">
-                    <FileSpreadsheet className="h-3.5 w-3.5 mt-0.5 text-sidebar-muted shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-xs text-sidebar-foreground truncate">{upload.name}</p>
-                      <p className="text-[10px] text-sidebar-muted">{upload.date}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
-
-      <SidebarFooter className="p-3">
-        <button
-          type="button"
-          onClick={goToTelegramIntegration}
-          className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-sidebar-accent/50 transition-colors w-full text-left"
-          aria-label="Open Telegram integration settings"
-        >
-          {collapsed ? (
-            <div className="h-2 w-2 rounded-full bg-positive mx-auto" />
-          ) : (
-            <>
-              <Send className="h-3.5 w-3.5 text-sidebar-muted shrink-0" />
-              <div className="h-2 w-2 rounded-full bg-positive shrink-0" />
-              <span className="text-xs text-sidebar-muted">Telegram connected</span>
-            </>
-          )}
-        </button>
-      </SidebarFooter>
     </Sidebar>
   );
 }
