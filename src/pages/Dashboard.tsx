@@ -1,163 +1,123 @@
+import { useState, useCallback } from "react";
 import { AppShell } from "@/components/AppShell";
-import { AlertCircle, TrendingDown, TrendingUp } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { HeadlineRow } from "@/components/dashboard/HeadlineRow";
+import { KPICard } from "@/components/dashboard/KPICard";
+import { MarginTrendChart } from "@/components/dashboard/MarginTrendChart";
+import { CostBreakdownSection } from "@/components/dashboard/CostBreakdownSection";
+import { BreakevenCard } from "@/components/dashboard/BreakevenCard";
+import { MonthlyDetailTable } from "@/components/dashboard/MonthlyDetailTable";
+import { InlineAIRow } from "@/components/dashboard/InlineAIRow";
+import {
+  mockMonthlyMargin,
+  mockCostDrivers,
+  mockDepartmentCosts,
+  mockBreakeven,
+  mockKPIs,
+  mockAIResponses,
+} from "@/lib/mock-data";
 
-interface InsightCard {
-  id: string;
-  title: string;
-  severity: "high" | "medium" | "low";
-  category: string;
-  isNew: boolean;
-  summary: string;
-  metrics: { label: string; value: string }[];
-  impact: string;
-  context: string;
-  recommendation: string;
-}
-
-const insights: InsightCard[] = [
-  {
-    id: "1",
-    title: "RevPAR Declining Significantly",
-    severity: "high",
-    category: "Revenue Management",
-    isNew: true,
-    summary:
-      "RevPAR dropped from €142 to €118 over the last quarter, indicating a combined rate and occupancy pressure that requires immediate pricing review.",
-    metrics: [
-      { label: "RevPAR (current)", value: "€118" },
-      { label: "RevPAR (prior)", value: "€142" },
-      { label: "ADR", value: "€165 → €158" },
-      { label: "Occupancy", value: "86% → 75%" },
-    ],
-    impact:
-      "Estimated revenue shortfall of €210K annualised if the trend continues through Q1.",
-    context:
-      "ADR compression alongside occupancy drops suggests competitive displacement rather than seasonal softness. Comparable set ADR is stable at €162.",
-    recommendation:
-      "Review dynamic pricing rules for midweek segments. Consider targeted packages for corporate extended stays to recover occupancy without further rate erosion. Run a 2-week A/B test on BAR flex vs. non-refundable mix.",
-  },
-  {
-    id: "2",
-    title: "Revenue Decline Requires Cost Action",
-    severity: "high",
-    category: "Cost Control",
-    isNew: true,
-    summary:
-      "Total operating revenue fell 8.2% QoQ while controllable costs remained flat, compressing GOP margin from 34.1% to 28.6%.",
-    metrics: [
-      { label: "Revenue decline", value: "−8.2% QoQ" },
-      { label: "GOP margin", value: "28.6% (was 34.1%)" },
-      { label: "Labour ratio", value: "38.4% of revenue" },
-      { label: "F&B COGS", value: "32.1% of F&B rev" },
-    ],
-    impact:
-      "GOP shortfall of €185K versus budget. At current trajectory, full-year GOP will miss target by €540K.",
-    context:
-      "Rooms revenue (−6.1%) and F&B (−12.4%) both declined. Spa/Other held flat. Labour hours did not flex with lower covers and occupancy.",
-    recommendation:
-      "Implement variable staffing model tied to 3-day rolling forecast. Renegotiate top-3 F&B supplier contracts (wine, proteins, dairy) — current terms are 4–7% above market. Target labour ratio ≤ 35% within 60 days.",
-  },
-];
-
-const severityColor: Record<string, string> = {
-  high: "bg-destructive/10 text-destructive border-destructive/20",
-  medium: "bg-accent/10 text-accent-foreground border-accent/20",
-  low: "bg-positive/10 text-positive border-positive/20",
+const formatCurrency = (v: number) => {
+  if (v >= 1_000_000) return `€${(v / 1_000_000).toFixed(2)}M`;
+  if (v >= 1_000) return `€${(v / 1_000).toFixed(0)}K`;
+  return `€${v}`;
 };
 
-const InsightTile = ({ insight }: { insight: InsightCard }) => (
-  <div className="bg-card rounded-xl border p-6 space-y-4">
-    <div className="flex items-start gap-3">
-      <div className="mt-0.5 h-8 w-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-        <AlertCircle className="h-4 w-4 text-destructive" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-semibold text-foreground leading-snug">
-          {insight.title}
-        </h3>
-        <div className="flex flex-wrap items-center gap-1.5 mt-2">
-          <Badge
-            className={`text-[10px] font-semibold uppercase px-2 py-0.5 ${severityColor[insight.severity]}`}
-          >
-            {insight.severity}
-          </Badge>
-          <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
-            {insight.category}
-          </Badge>
-          {insight.isNew && (
-            <Badge className="text-[10px] px-2 py-0.5 bg-primary text-primary-foreground">
-              NEW
-            </Badge>
-          )}
-        </div>
-      </div>
-    </div>
+const kpiCards = [
+  { key: "kpi-total-revenue", label: "Total Revenue", value: formatCurrency(mockKPIs.total_revenue), delta: mockKPIs.revenue_delta },
+  { key: "kpi-total-costs", label: "Total Costs", value: formatCurrency(mockKPIs.total_costs), delta: mockKPIs.costs_delta },
+  { key: "kpi-gop", label: "GOP", value: formatCurrency(mockKPIs.gop), delta: mockKPIs.gop_delta },
+  { key: "kpi-gop-margin", label: "GOP Margin", value: `${mockKPIs.gop_margin_pct}%`, delta: mockKPIs.margin_delta },
+];
 
-    <p className="text-xs text-muted-foreground leading-relaxed">
-      {insight.summary}
-    </p>
+const Dashboard = () => {
+  const [activeAI, setActiveAI] = useState<string | null>(null);
 
-    <div className="grid grid-cols-2 gap-2">
-      {insight.metrics.map((m) => (
-        <div key={m.label} className="bg-muted/50 rounded-lg px-3 py-2">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-            {m.label}
-          </p>
-          <p className="text-xs font-semibold text-foreground font-mono-data mt-0.5">
-            {m.value}
+  const toggleAI = useCallback((key: string) => {
+    setActiveAI((prev) => (prev === key ? null : key));
+  }, []);
+
+  return (
+    <AppShell>
+      <div className="max-w-5xl mx-auto space-y-4 py-1">
+        <div>
+          <h1 className="text-base font-semibold text-foreground">P&L Dashboard</h1>
+          <p className="text-[11px] text-muted-foreground mt-0.5">
+            Jan – Dec 2024 · Uploaded from f5.tables.xlsx
           </p>
         </div>
-      ))}
-    </div>
 
-    <div className="space-y-2">
-      <div>
-        <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">
-          Impact
-        </p>
-        <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">
-          {insight.impact}
-        </p>
-      </div>
-      <div>
-        <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">
-          Context
-        </p>
-        <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">
-          {insight.context}
-        </p>
-      </div>
-    </div>
+        {/* Headline */}
+        <HeadlineRow
+          period="Q4 2024"
+          gop={formatCurrency(mockKPIs.gop)}
+          marginPct={mockKPIs.gop_margin_pct}
+          marginDelta={mockKPIs.margin_delta}
+          verdict="Solid quarter — margin held despite cost headwinds"
+        />
 
-    <div className="bg-muted/30 border border-border rounded-lg p-3">
-      <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide mb-1">
-        Recommendation
-      </p>
-      <p className="text-xs text-foreground/80 leading-relaxed">
-        {insight.recommendation}
-      </p>
-    </div>
-  </div>
-);
+        {/* KPI Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {kpiCards.map((kpi, i) => (
+            <div key={kpi.key}>
+              <KPICard
+                label={kpi.label}
+                value={kpi.value}
+                delta={kpi.delta}
+                index={i}
+                active={activeAI === kpi.key}
+                onClick={() => toggleAI(kpi.key)}
+              />
+              <InlineAIRow
+                visible={activeAI === kpi.key}
+                content={mockAIResponses[kpi.key] || ""}
+              />
+            </div>
+          ))}
+        </div>
 
-const Dashboard = () => (
-  <AppShell>
-    <div className="max-w-5xl mx-auto space-y-4 py-1">
-      <div>
-        <h1 className="text-base font-semibold text-foreground">Dashboard</h1>
-        <p className="text-[11px] text-muted-foreground mt-0.5">
-          Priority insights from your latest P&L
-        </p>
-      </div>
+        {/* Margin Trend */}
+        <MarginTrendChart
+          data={mockMonthlyMargin}
+          target={40}
+          active={activeAI === "margin-trend"}
+          onClickPoint={(month) => toggleAI(`month-${month}`)}
+        />
+        <InlineAIRow
+          visible={activeAI === "margin-trend"}
+          content={mockAIResponses["margin-trend"] || ""}
+        />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {insights.map((insight) => (
-          <InsightTile key={insight.id} insight={insight} />
-        ))}
+        {/* Cost Breakdown + Breakeven */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <CostBreakdownSection
+              departments={mockDepartmentCosts}
+              drivers={mockCostDrivers}
+              active={activeAI === "cost-breakdown"}
+              onClickSegment={(dept) => toggleAI(`dept-${dept}`)}
+              onClickRow={(account) => toggleAI(`account-${account}`)}
+            />
+            <InlineAIRow
+              visible={activeAI === "cost-breakdown"}
+              content={mockAIResponses["cost-breakdown"] || ""}
+            />
+          </div>
+          <BreakevenCard
+            breakeven_occupancy_pct={mockBreakeven.breakeven_occupancy_pct}
+            current_occupancy_pct={mockBreakeven.current_occupancy_pct}
+            rooms_per_night_needed={mockBreakeven.rooms_per_night_needed}
+            months_below={mockBreakeven.months_below}
+            total_months={mockBreakeven.total_months}
+            active={activeAI === "breakeven"}
+            onClick={() => toggleAI("breakeven")}
+          />
+        </div>
+
+        {/* Monthly Detail */}
+        <MonthlyDetailTable data={mockMonthlyMargin} />
       </div>
-    </div>
-  </AppShell>
-);
+    </AppShell>
+  );
+};
 
 export default Dashboard;
