@@ -4,12 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Ledger from "./pages/Ledger";
-import MaterialityMatrix from "./pages/MaterialityMatrix";
-import CAPEXRoadmap from "./pages/CAPEXRoadmap";
+import Insights from "./pages/Insights";
 import DataVault from "./pages/DataVault";
-import Reporting from "./pages/Reporting";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -24,12 +20,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/ledger" element={<Ledger />} />
-          <Route path="/materiality" element={<MaterialityMatrix />} />
-          <Route path="/roadmap" element={<CAPEXRoadmap />} />
+          <Route path="/insights" element={<Insights />} />
           <Route path="/data" element={<DataVault />} />
-          <Route path="/reporting" element={<Reporting />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,5 +1,5 @@
 import { AppShell } from "@/components/AppShell";
-import { AlertCircle, TrendingDown, TrendingUp } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface InsightCard {
@@ -15,7 +15,7 @@ interface InsightCard {
   recommendation: string;
 }
 
-const insights: InsightCard[] = [
+const mockInsights: InsightCard[] = [
   {
     id: "1",
     title: "RevPAR Declining Significantly",
@@ -68,6 +68,7 @@ const severityColor: Record<string, string> = {
 
 const InsightTile = ({ insight }: { insight: InsightCard }) => (
   <div className="bg-card rounded-xl border p-6 space-y-4">
+    {/* Header */}
     <div className="flex items-start gap-3">
       <div className="mt-0.5 h-8 w-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
         <AlertCircle className="h-4 w-4 text-destructive" />
@@ -94,13 +95,18 @@ const InsightTile = ({ insight }: { insight: InsightCard }) => (
       </div>
     </div>
 
+    {/* Summary */}
     <p className="text-xs text-muted-foreground leading-relaxed">
       {insight.summary}
     </p>
 
+    {/* Metrics grid */}
     <div className="grid grid-cols-2 gap-2">
       {insight.metrics.map((m) => (
-        <div key={m.label} className="bg-muted/50 rounded-lg px-3 py-2">
+        <div
+          key={m.label}
+          className="bg-muted/50 rounded-lg px-3 py-2"
+        >
           <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
             {m.label}
           </p>
@@ -111,6 +117,7 @@ const InsightTile = ({ insight }: { insight: InsightCard }) => (
       ))}
     </div>
 
+    {/* Impact & Context */}
     <div className="space-y-2">
       <div>
         <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">
@@ -130,6 +137,7 @@ const InsightTile = ({ insight }: { insight: InsightCard }) => (
       </div>
     </div>
 
+    {/* Recommendation */}
     <div className="bg-muted/30 border border-border rounded-lg p-3">
       <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide mb-1">
         Recommendation
@@ -141,18 +149,18 @@ const InsightTile = ({ insight }: { insight: InsightCard }) => (
   </div>
 );
 
-const Dashboard = () => (
+const Insights = () => (
   <AppShell>
     <div className="max-w-5xl mx-auto space-y-4 py-1">
       <div>
-        <h1 className="text-base font-semibold text-foreground">Dashboard</h1>
+        <h1 className="text-base font-semibold text-foreground">AI Insights</h1>
         <p className="text-[11px] text-muted-foreground mt-0.5">
-          Priority insights from your latest P&L
+          Priority actions generated from your latest P&L data
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {insights.map((insight) => (
+        {mockInsights.map((insight) => (
           <InsightTile key={insight.id} insight={insight} />
         ))}
       </div>
@@ -160,4 +168,4 @@ const Dashboard = () => (
   </AppShell>
 );
 
-export default Dashboard;
+export default Insights;
