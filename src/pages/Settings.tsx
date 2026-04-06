@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
+import { sendTelegramMessage } from "@/services/telegram";
 
 const STORAGE_KEY = "pp_notification_settings";
 
@@ -78,6 +79,19 @@ const Settings = () => {
 
   const update = <K extends keyof NotificationSettings>(key: K, value: NotificationSettings[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleTestTelegram = async () => {
+    if (!settings.botToken || !settings.chatId) {
+      toast.error("Please enter Bot Token and Chat ID first.");
+      return;
+    }
+    const success = await sendTelegramMessage("✅ ProfitPulse connected successfully. Alerts are active.");
+    if (success) {
+      toast.success("Test message sent to Telegram");
+    } else {
+      toast.error("Failed to send — check your bot token and chat ID.");
+    }
   };
 
   return (
@@ -191,7 +205,7 @@ const Settings = () => {
                 variant="outline"
                 size="sm"
                 className="text-xs"
-                onClick={() => toast.success("Test message sent to Telegram")}
+                onClick={handleTestTelegram}
               >
                 Send test message
               </Button>
@@ -203,39 +217,19 @@ const Settings = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label className="text-xs">F&B Cost % threshold</Label>
-                  <Input
-                    type="number"
-                    value={settings.fbThreshold}
-                    onChange={(e) => update("fbThreshold", Number(e.target.value))}
-                    className="text-sm"
-                  />
+                  <Input type="number" value={settings.fbThreshold} onChange={(e) => update("fbThreshold", Number(e.target.value))} className="text-sm" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">Payroll % threshold</Label>
-                  <Input
-                    type="number"
-                    value={settings.payrollThreshold}
-                    onChange={(e) => update("payrollThreshold", Number(e.target.value))}
-                    className="text-sm"
-                  />
+                  <Input type="number" value={settings.payrollThreshold} onChange={(e) => update("payrollThreshold", Number(e.target.value))} className="text-sm" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">OCC% drop alert (%)</Label>
-                  <Input
-                    type="number"
-                    value={settings.occDrop}
-                    onChange={(e) => update("occDrop", Number(e.target.value))}
-                    className="text-sm"
-                  />
+                  <Input type="number" value={settings.occDrop} onChange={(e) => update("occDrop", Number(e.target.value))} className="text-sm" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">RevPAR drop alert (%)</Label>
-                  <Input
-                    type="number"
-                    value={settings.revparDrop}
-                    onChange={(e) => update("revparDrop", Number(e.target.value))}
-                    className="text-sm"
-                  />
+                  <Input type="number" value={settings.revparDrop} onChange={(e) => update("revparDrop", Number(e.target.value))} className="text-sm" />
                 </div>
               </div>
             </Card>
@@ -249,27 +243,15 @@ const Settings = () => {
                     <Switch checked={settings.dailyDigest} onCheckedChange={(v) => update("dailyDigest", v)} />
                     <Label className="text-xs">Daily digest</Label>
                   </div>
-                  <Input
-                    type="time"
-                    value={settings.dailyTime}
-                    onChange={(e) => update("dailyTime", e.target.value)}
-                    className="text-sm w-28"
-                    disabled={!settings.dailyDigest}
-                  />
+                  <Input type="time" value={settings.dailyTime} onChange={(e) => update("dailyTime", e.target.value)} className="text-sm w-28" disabled={!settings.dailyDigest} />
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Switch checked={settings.weeklySummary} onCheckedChange={(v) => update("weeklySummary", v)} />
                     <Label className="text-xs">Weekly summary</Label>
                   </div>
-                  <Select
-                    value={settings.weeklyDay}
-                    onValueChange={(v) => update("weeklyDay", v)}
-                    disabled={!settings.weeklySummary}
-                  >
-                    <SelectTrigger className="w-28 h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
+                  <Select value={settings.weeklyDay} onValueChange={(v) => update("weeklyDay", v)} disabled={!settings.weeklySummary}>
+                    <SelectTrigger className="w-28 h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((d) => (
                         <SelectItem key={d} value={d} className="text-xs capitalize">{d}</SelectItem>

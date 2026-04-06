@@ -5,20 +5,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, getLastRoute } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 const roleHome: Record<string, string> = {
   inventory: "/inventory",
   manager: "/dashboard",
-  direction: "/dashboard",
+  direction: "/multi-property",
 };
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+
+  // If already logged in, redirect away from login
+  useEffect(() => {
+    if (user) {
+      const lastRoute = getLastRoute();
+      navigate(lastRoute || roleHome[user.role] || "/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
