@@ -8,6 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRequireRole } from "@/contexts/AuthContext";
+import { useInventory } from "@/hooks/useInventory";
+import { toast } from "sonner";
+import { submitInventory } from "@/services/api";
 
 const departmentLines: Record<string, string[]> = {
   rooms: ["Linen & Towels", "Minibar Restock", "Amenities (Toiletries)", "Cleaning Supplies"],
@@ -42,10 +47,16 @@ const statusColor: Record<SubmissionStatus, string> = {
 };
 
 const today = new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+const todayISO = new Date().toISOString().split("T")[0];
 
 const Inventory = () => {
+  useRequireRole(["inventory"]);
+
+  const [activeDept, setActiveDept] = useState("fb");
   const [values, setValues] = useState<Record<string, Record<string, { amount: string; notes: string }>>>({});
   const [statuses, setStatuses] = useState<Record<string, SubmissionStatus>>({});
+
+  const { loading } = useInventory(activeDept, todayISO);
 
   const getVal = (dept: string, line: string) =>
     values[dept]?.[line] || { amount: "", notes: "" };
@@ -57,8 +68,11 @@ const Inventory = () => {
     }));
   };
 
-  const handleSave = (dept: string, status: SubmissionStatus) => {
+  const handleSave = async (dept: string, status: SubmissionStatus) => {
     setStatuses((prev) => ({ ...prev, [dept]: status }));
+    if (status === "Submitted") {
+      toast.success(`${dept === "fb" ? "F&B" : dept} submission sent for review`);
+    }
   };
 
   return (
@@ -69,7 +83,7 @@ const Inventory = () => {
           <p className="text-xs text-muted-foreground mt-0.5">{today}</p>
         </div>
 
-        <Tabs defaultValue="fb">
+        <Tabs value={activeDept} onValueChange={setActiveDept}>
           <TabsList>
             <TabsTrigger value="rooms" className="text-xs">Rooms</TabsTrigger>
             <TabsTrigger value="fb" className="text-xs">F&B</TabsTrigger>
@@ -89,31 +103,39 @@ const Inventory = () => {
                   )}
                 </div>
 
-                <div className="space-y-3">
-                  {lines.map((line) => {
-                    const val = getVal(dept, line);
-                    return (
-                      <div key={line} className="grid grid-cols-[1fr_120px_1fr] gap-3 items-start">
-                        <Label className="text-xs pt-2">{line}</Label>
-                        <div>
-                          <Input
-                            type="number"
-                            placeholder="€ 0"
-                            value={val.amount}
-                            onChange={(e) => setVal(dept, line, "amount", e.target.value)}
-                            className="h-8 text-xs"
+                {loading ? (
+                  <div className="space-y-3">
+                    {lines.map((_, i) => (
+                      <Skeleton key={i} className="h-8 w-full" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {lines.map((line) => {
+                      const val = getVal(dept, line);
+                      return (
+                        <div key={line} className="grid grid-cols-[1fr_120px_1fr] gap-3 items-start">
+                          <Label className="text-xs pt-2">{line}</Label>
+                          <div>
+                            <Input
+                              type="number"
+                              placeholder="€ 0"
+                              value={val.amount}
+                              onChange={(e) => setVal(dept, line, "amount", e.target.value)}
+                              className="h-8 text-xs"
+                            />
+                          </div>
+                          <Textarea
+                            placeholder="Notes (optional)"
+                            value={val.notes}
+                            onChange={(e) => setVal(dept, line, "notes", e.target.value)}
+                            className="text-xs min-h-[32px] h-8 resize-none"
                           />
                         </div>
-                        <Textarea
-                          placeholder="Notes (optional)"
-                          value={val.notes}
-                          onChange={(e) => setVal(dept, line, "notes", e.target.value)}
-                          className="text-xs min-h-[32px] h-8 resize-none"
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 <div className="flex gap-2 pt-2">
                   <Button variant="outline" size="sm" className="text-xs" onClick={() => handleSave(dept, "Draft")}>
