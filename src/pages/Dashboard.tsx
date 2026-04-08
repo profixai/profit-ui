@@ -1,5 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 import { AppShell } from "@/components/AppShell";
 import { HeadlineRow } from "@/components/dashboard/HeadlineRow";
 import { KPICard } from "@/components/dashboard/KPICard";
