@@ -139,6 +139,7 @@ const ProfitLoss = () => {
   return (
     <AppShell>
       <div className="max-w-6xl mx-auto space-y-4">
+        <WhyThisMatters block={pageValueBlocks.pl} />
         {/* Sticky filter bar */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur pb-3 pt-1 flex flex-wrap items-center gap-3 border-b">
           <Select value={property} onValueChange={setProperty}>

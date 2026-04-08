@@ -99,6 +99,7 @@ const Settings = () => {
   return (
     <AppShell>
       <div className="max-w-2xl mx-auto space-y-6">
+        <WhyThisMatters block={pageValueBlocks.settings} />
         <div>
           <h1 className="text-xl font-semibold">Settings</h1>
           <p className="text-sm text-muted-foreground">Manage your property and account</p>

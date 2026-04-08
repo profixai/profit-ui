@@ -80,6 +80,7 @@ const Inventory = () => {
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto space-y-6">
+        <WhyThisMatters block={pageValueBlocks.inventory} />
         <div>
           <h1 className="text-base font-semibold">Daily Stock & Cost Entry</h1>
           <p className="text-xs text-muted-foreground mt-0.5">{today}</p>
