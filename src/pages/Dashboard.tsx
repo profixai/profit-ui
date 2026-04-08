@@ -1,5 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 import { AppShell } from "@/components/AppShell";
 import { HeadlineRow } from "@/components/dashboard/HeadlineRow";
 import { KPICard } from "@/components/dashboard/KPICard";
@@ -80,6 +82,7 @@ const DirectionDashboard = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-4 py-1">
+      <WhyThisMatters block={pageValueBlocks.dashboard} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-semibold text-foreground">Executive Overview</h1>
@@ -172,6 +175,7 @@ const ManagerDashboard = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-4 py-1">
+      <WhyThisMatters block={pageValueBlocks.dashboard} />
       <div>
         <h1 className="text-base font-semibold text-foreground">P&L Dashboard</h1>
         <p className="text-[11px] text-muted-foreground mt-0.5">

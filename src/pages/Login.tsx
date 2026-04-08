@@ -11,8 +11,8 @@ import { useEffect } from "react";
 
 const roleHome: Record<string, string> = {
   inventory: "/inventory",
-  manager: "/dashboard",
-  direction: "/multi-property",
+  manager: "/overview",
+  direction: "/overview",
 };
 
 const Login = () => {

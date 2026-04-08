@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { useInsights } from "@/hooks/useInsights";
 import { InsightCard } from "@/services/api";
 import { sendTelegramMessage, formatInsightMessage, getTelegramConfig } from "@/services/telegram";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 
 type Severity = "critical" | "warning" | "info";
 
@@ -59,6 +61,7 @@ const Insights = () => {
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto space-y-4">
+        <WhyThisMatters block={pageValueBlocks.insights} />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-base font-semibold">AI Insights</h1>

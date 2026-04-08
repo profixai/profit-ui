@@ -15,6 +15,8 @@ import {
 } from "recharts";
 import { useRequireRole } from "@/contexts/AuthContext";
 import { useMultiProperty } from "@/hooks/useMultiProperty";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 
 const kpiLabels = [
   { key: "revpar", label: "RevPAR", fmt: "€" },
@@ -38,6 +40,7 @@ const MultiProperty = () => {
   return (
     <AppShell>
       <div className="max-w-6xl mx-auto space-y-5">
+        <WhyThisMatters block={pageValueBlocks.multiProperty} />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-base font-semibold">Portfolio View</h1>

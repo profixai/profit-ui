@@ -19,6 +19,8 @@ import { usePL } from "@/hooks/usePL";
 import { PLRow as PLRowType } from "@/services/api";
 import { sendTelegramMessage, formatInsightMessage, getTelegramConfig } from "@/services/telegram";
 import { toast } from "sonner";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 
 const fmt = (v: number, f: string) => {
   if (f === "pct") return `${v}%`;
@@ -137,6 +139,7 @@ const ProfitLoss = () => {
   return (
     <AppShell>
       <div className="max-w-6xl mx-auto space-y-4">
+        <WhyThisMatters block={pageValueBlocks.pl} />
         {/* Sticky filter bar */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur pb-3 pt-1 flex flex-wrap items-center gap-3 border-b">
           <Select value={property} onValueChange={setProperty}>

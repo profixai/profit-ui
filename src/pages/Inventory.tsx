@@ -13,6 +13,8 @@ import { useRequireRole } from "@/contexts/AuthContext";
 import { useInventory } from "@/hooks/useInventory";
 import { toast } from "sonner";
 import { submitInventory } from "@/services/api";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 
 const departmentLines: Record<string, string[]> = {
   rooms: ["Linen & Towels", "Minibar Restock", "Amenities (Toiletries)", "Cleaning Supplies"],
@@ -78,6 +80,7 @@ const Inventory = () => {
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto space-y-6">
+        <WhyThisMatters block={pageValueBlocks.inventory} />
         <div>
           <h1 className="text-base font-semibold">Daily Stock & Cost Entry</h1>
           <p className="text-xs text-muted-foreground mt-0.5">{today}</p>

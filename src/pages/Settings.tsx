@@ -14,6 +14,8 @@ import {
 import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { sendTelegramMessage } from "@/services/telegram";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 
 const STORAGE_KEY = "pp_notification_settings";
 
@@ -97,6 +99,7 @@ const Settings = () => {
   return (
     <AppShell>
       <div className="max-w-2xl mx-auto space-y-6">
+        <WhyThisMatters block={pageValueBlocks.settings} />
         <div>
           <h1 className="text-xl font-semibold">Settings</h1>
           <p className="text-sm text-muted-foreground">Manage your property and account</p>
