@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { useInsights } from "@/hooks/useInsights";
 import { InsightCard } from "@/services/api";
 import { sendTelegramMessage, formatInsightMessage, getTelegramConfig } from "@/services/telegram";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 
 type Severity = "critical" | "warning" | "info";
 
