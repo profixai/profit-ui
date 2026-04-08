@@ -13,6 +13,8 @@ import { useRequireRole } from "@/contexts/AuthContext";
 import { useInventory } from "@/hooks/useInventory";
 import { toast } from "sonner";
 import { submitInventory } from "@/services/api";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 
 const departmentLines: Record<string, string[]> = {
   rooms: ["Linen & Towels", "Minibar Restock", "Amenities (Toiletries)", "Cleaning Supplies"],
