@@ -14,6 +14,8 @@ import {
 import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { sendTelegramMessage } from "@/services/telegram";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 
 const STORAGE_KEY = "pp_notification_settings";
 
