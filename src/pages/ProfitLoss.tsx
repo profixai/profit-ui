@@ -19,6 +19,8 @@ import { usePL } from "@/hooks/usePL";
 import { PLRow as PLRowType } from "@/services/api";
 import { sendTelegramMessage, formatInsightMessage, getTelegramConfig } from "@/services/telegram";
 import { toast } from "sonner";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 
 const fmt = (v: number, f: string) => {
   if (f === "pct") return `${v}%`;
