@@ -15,6 +15,8 @@ import {
 } from "recharts";
 import { useRequireRole } from "@/contexts/AuthContext";
 import { useMultiProperty } from "@/hooks/useMultiProperty";
+import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
+import { pageValueBlocks } from "@/lib/saas-data";
 
 const kpiLabels = [
   { key: "revpar", label: "RevPAR", fmt: "€" },
