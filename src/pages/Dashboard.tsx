@@ -82,6 +82,7 @@ const DirectionDashboard = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-4 py-1">
+      <WhyThisMatters block={pageValueBlocks.dashboard} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-semibold text-foreground">Executive Overview</h1>
