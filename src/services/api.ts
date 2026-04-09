@@ -316,6 +316,7 @@ export async function fetchInsights(propertyId: string): Promise<APIResponse<Ins
 export async function fetchInventory(department: string, date: string): Promise<APIResponse<InventoryEntry[]>> {
   if (BASE_URL) {
     const res = await fetch(`${BASE_URL}/api/v1/inventory?department=${department}&date=${date}`);
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   return delay(mockInventoryEntries[department] || []);
