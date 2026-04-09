@@ -277,7 +277,12 @@ export async function fetchPL(params: {
   period: "daily" | "monthly" | "ytd";
 }): Promise<APIResponse<PLResponse>> {
   if (BASE_URL) {
-    const res = await fetch(`${BASE_URL}/api/v1/pl?property=${params.property}&year=${params.year}&month=${params.month}&period=${params.period}`);
+    const res = await fetch(`${BASE_URL}/api/v1/pl`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   return delay({
