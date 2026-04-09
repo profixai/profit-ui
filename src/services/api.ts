@@ -332,6 +332,7 @@ export async function submitInventory(entries: InventoryEntry[]): Promise<APIRes
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(entries),
     });
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   return delay({ success: true, submissionId: crypto.randomUUID() });
