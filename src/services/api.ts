@@ -343,6 +343,7 @@ export async function submitInventory(entries: InventoryEntry[]): Promise<APIRes
 export async function fetchMultiProperty(): Promise<APIResponse<PropertySummary[]>> {
   if (BASE_URL) {
     const res = await fetch(`${BASE_URL}/api/v1/multi-property`);
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   return delay(mockProperties);
