@@ -304,6 +304,7 @@ export async function fetchPL(params: {
 export async function fetchInsights(propertyId: string): Promise<APIResponse<InsightCard[]>> {
   if (BASE_URL) {
     const res = await fetch(`${BASE_URL}/api/v1/insights?propertyId=${propertyId}`);
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   return delay(mockInsights);
