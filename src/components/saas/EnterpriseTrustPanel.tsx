@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -62,8 +63,8 @@ const statusColor: Record<string, string> = {
   Roadmap: "bg-muted text-muted-foreground",
 };
 
-export const EnterpriseTrustPanel = () => (
-  <div className="space-y-4">
+export const EnterpriseTrustPanel = forwardRef<HTMLDivElement>((_, ref) => (
+  <div ref={ref} className="space-y-4">
     <div>
       <h2 className="text-sm font-semibold">Security, Governance & Compliance</h2>
       <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -88,4 +89,6 @@ export const EnterpriseTrustPanel = () => (
       ))}
     </div>
   </div>
-);
+));
+
+EnterpriseTrustPanel.displayName = "EnterpriseTrustPanel";
