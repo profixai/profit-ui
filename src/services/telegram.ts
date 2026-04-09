@@ -16,6 +16,21 @@ export function getTelegramConfig(): TelegramConfig | null {
 }
 
 export async function sendTelegramMessage(message: string): Promise<boolean> {
+  const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+  if (BASE) {
+    try {
+      const res = await fetch(`${BASE}/api/v1/notify/telegram`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, severity: "info", property_id: "default" }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  // fallback: direct Bot API (local dev without backend)
   const config = getTelegramConfig();
   if (!config) return false;
 

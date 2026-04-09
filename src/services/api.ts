@@ -277,7 +277,12 @@ export async function fetchPL(params: {
   period: "daily" | "monthly" | "ytd";
 }): Promise<APIResponse<PLResponse>> {
   if (BASE_URL) {
-    const res = await fetch(`${BASE_URL}/api/v1/pl?property=${params.property}&year=${params.year}&month=${params.month}&period=${params.period}`);
+    const res = await fetch(`${BASE_URL}/api/v1/pl`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   return delay({
@@ -299,6 +304,7 @@ export async function fetchPL(params: {
 export async function fetchInsights(propertyId: string): Promise<APIResponse<InsightCard[]>> {
   if (BASE_URL) {
     const res = await fetch(`${BASE_URL}/api/v1/insights?propertyId=${propertyId}`);
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   return delay(mockInsights);
@@ -310,6 +316,7 @@ export async function fetchInsights(propertyId: string): Promise<APIResponse<Ins
 export async function fetchInventory(department: string, date: string): Promise<APIResponse<InventoryEntry[]>> {
   if (BASE_URL) {
     const res = await fetch(`${BASE_URL}/api/v1/inventory?department=${department}&date=${date}`);
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   return delay(mockInventoryEntries[department] || []);
@@ -325,6 +332,7 @@ export async function submitInventory(entries: InventoryEntry[]): Promise<APIRes
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(entries),
     });
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   return delay({ success: true, submissionId: crypto.randomUUID() });
@@ -335,6 +343,7 @@ export async function submitInventory(entries: InventoryEntry[]): Promise<APIRes
 export async function fetchMultiProperty(): Promise<APIResponse<PropertySummary[]>> {
   if (BASE_URL) {
     const res = await fetch(`${BASE_URL}/api/v1/multi-property`);
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   return delay(mockProperties);
