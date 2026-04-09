@@ -9,8 +9,8 @@ interface Props {
   tiers: PackageTier[];
 }
 
-export const PackagingTiers = ({ tiers }: Props) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+export const PackagingTiers = forwardRef<HTMLDivElement, Props>(({ tiers }, ref) => (
+  <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-4">
     {tiers.map((t) => (
       <Card
         key={t.tier}
@@ -51,4 +51,6 @@ export const PackagingTiers = ({ tiers }: Props) => (
       </Card>
     ))}
   </div>
-);
+));
+
+PackagingTiers.displayName = "PackagingTiers";

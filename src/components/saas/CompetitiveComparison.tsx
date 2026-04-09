@@ -64,8 +64,8 @@ const StatusIcon = ({ status }: { status: Status }) => {
   return <Minus className="h-3.5 w-3.5 text-muted-foreground" />;
 };
 
-export const CompetitiveComparison = () => (
-  <Card className="overflow-hidden">
+export const CompetitiveComparison = forwardRef<HTMLDivElement>((_, ref) => (
+  <Card ref={ref} className="overflow-hidden">
     <div className="p-4 border-b">
       <h2 className="text-sm font-semibold">Competitive Comparison</h2>
       <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -104,4 +104,6 @@ export const CompetitiveComparison = () => (
       </table>
     </div>
   </Card>
-);
+));
+
+CompetitiveComparison.displayName = "CompetitiveComparison";
