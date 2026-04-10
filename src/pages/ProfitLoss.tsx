@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,13 +15,12 @@ import {
   TrendingUp, TrendingDown, ChevronDown, ChevronRight,
   AlertTriangle, Download, X, Send,
 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingState, ErrorState, EmptyState } from "@/components/ui/states";
 import { usePL } from "@/hooks/usePL";
 import { PLRow as PLRowType } from "@/services/api";
 import { sendTelegramMessage, formatInsightMessage, getTelegramConfig } from "@/services/telegram";
 import { toast } from "sonner";
-import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
-import { pageValueBlocks } from "@/lib/saas-data";
+import { useProperty } from "@/contexts/PropertyContext";
 
 const fmt = (v: number, f: string) => {
   if (f === "pct") return `${v}%`;
@@ -86,13 +86,17 @@ const PLRowComponent = ({ row, depth = 0 }: { row: PLRowType; depth?: number }) 
 const FB_THRESHOLD = 32;
 
 const ProfitLoss = () => {
-  const [property, setProperty] = useState("le-grand");
-  const [year, setYear] = useState(2024);
-  const [month, setMonth] = useState("dec");
-  const [period, setPeriod] = useState<"daily" | "monthly" | "ytd">("monthly");
+  const { propertyId, period, setPeriod } = useProperty();
+  const [month, setMonth] = useState(period.month);
   const [showBanner, setShowBanner] = useState(true);
+  const navigate = useNavigate();
 
-  const { data, loading } = usePL({ property, year, month, period });
+  const { data, loading, error } = usePL({
+    property: propertyId,
+    year: period.year,
+    month,
+    period: period.granularity,
+  });
 
   const fbCostKpi = data?.kpis.find((k) => k.label === "F&B Cost %");
   const fbCostPct = fbCostKpi?.value ?? 0;
@@ -139,27 +143,12 @@ const ProfitLoss = () => {
   return (
     <AppShell>
       <div className="max-w-6xl mx-auto space-y-4">
-        <WhyThisMatters block={pageValueBlocks.pl} />
-        {/* Sticky filter bar */}
+        {/* Sticky filter bar — period tabs + month + export */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur pb-3 pt-1 flex flex-wrap items-center gap-3 border-b">
-          <Select value={property} onValueChange={setProperty}>
-            <SelectTrigger className="w-44 h-8 text-xs"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="le-grand">Le Grand Hôtel</SelectItem>
-              <SelectItem value="riviera">Riviera Palace</SelectItem>
-              <SelectItem value="alpine">Alpine Lodge</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-            <SelectTrigger className="w-24 h-8 text-xs"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Tabs value={period} onValueChange={(v) => setPeriod(v as any)}>
+          <Tabs
+            value={period.granularity}
+            onValueChange={(v) => setPeriod({ ...period, granularity: v as any })}
+          >
             <TabsList className="h-8">
               <TabsTrigger value="daily" className="text-xs px-3 h-6">Daily</TabsTrigger>
               <TabsTrigger value="monthly" className="text-xs px-3 h-6">Monthly</TabsTrigger>
@@ -200,68 +189,67 @@ const ProfitLoss = () => {
           </div>
         )}
 
-        {/* KPI Strip */}
+        {/* Content states */}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-[72px] rounded-lg" />
-            ))}
-          </div>
-        ) : data && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
-            {data.kpis.map((kpi) => {
-              const delta = kpi.budget ? ((kpi.value - kpi.budget) / kpi.budget * 100).toFixed(1) : "0.0";
-              const positive = kpi.value >= kpi.budget;
-              const isCost = kpi.label.includes("Cost");
-              const isGood = isCost ? !positive : positive;
+          <LoadingState message="Loading P&L data…" rows={8} />
+        ) : error ? (
+          <ErrorState message={error} onRetry={() => window.location.reload()} />
+        ) : !data ? (
+          <EmptyState
+            message="No P&L data available. Upload a financial report to get started."
+            actionLabel="Upload Data"
+            onAction={() => navigate("/data")}
+          />
+        ) : (
+          <>
+            {/* KPI Strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+              {data.kpis.map((kpi) => {
+                const delta = kpi.budget ? ((kpi.value - kpi.budget) / kpi.budget * 100).toFixed(1) : "0.0";
+                const positive = kpi.value >= kpi.budget;
+                const isCost = kpi.label.includes("Cost");
+                const isGood = isCost ? !positive : positive;
 
-              return (
-                <Card key={kpi.label} className="p-3 space-y-1">
-                  <p className="text-[10px] text-muted-foreground font-medium truncate">{kpi.label}</p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-sm font-semibold font-mono-data">{fmt(kpi.value, kpi.format)}</span>
-                    {isGood ? (
-                      <TrendingUp className="h-3 w-3 text-positive" />
-                    ) : (
-                      <TrendingDown className="h-3 w-3 text-destructive" />
-                    )}
-                  </div>
-                  <Badge variant="outline" className={`text-[9px] px-1.5 py-0 ${isGood ? "text-positive border-positive/30" : "text-destructive border-destructive/30"}`}>
-                    {positive ? "+" : ""}{delta}% vs budget
-                  </Badge>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+                return (
+                  <Card key={kpi.label} className="p-3 space-y-1">
+                    <p className="text-[10px] text-muted-foreground font-medium truncate">{kpi.label}</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm font-semibold font-mono-data">{fmt(kpi.value, kpi.format)}</span>
+                      {isGood ? (
+                        <TrendingUp className="h-3 w-3 text-positive" />
+                      ) : (
+                        <TrendingDown className="h-3 w-3 text-destructive" />
+                      )}
+                    </div>
+                    <Badge variant="outline" className={`text-[9px] px-1.5 py-0 ${isGood ? "text-positive border-positive/30" : "text-destructive border-destructive/30"}`}>
+                      {positive ? "+" : ""}{delta}% vs budget
+                    </Badge>
+                  </Card>
+                );
+              })}
+            </div>
 
-        {/* P&L Table */}
-        {loading ? (
-          <Card className="p-4 space-y-2">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <Skeleton key={i} className="h-8 w-full" />
-            ))}
-          </Card>
-        ) : data && (
-          <Card className="overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-xs w-[240px]">Line Item</TableHead>
-                  <TableHead className="text-xs text-right w-[100px]">Actual</TableHead>
-                  <TableHead className="text-xs text-right w-[100px]">Budget</TableHead>
-                  <TableHead className="text-xs text-right w-[100px]">Var €</TableHead>
-                  <TableHead className="text-xs text-right w-[80px]">Var %</TableHead>
-                  <TableHead className="text-xs text-center w-[80px]">6-Mo Trend</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.rows.map((row) => (
-                  <PLRowComponent key={row.id} row={row} />
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
+            {/* P&L Table */}
+            <Card className="overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs w-[240px]">Line Item</TableHead>
+                    <TableHead className="text-xs text-right w-[100px]">Actual</TableHead>
+                    <TableHead className="text-xs text-right w-[100px]">Budget</TableHead>
+                    <TableHead className="text-xs text-right w-[100px]">Var €</TableHead>
+                    <TableHead className="text-xs text-right w-[80px]">Var %</TableHead>
+                    <TableHead className="text-xs text-center w-[80px]">6-Mo Trend</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.rows.map((row) => (
+                    <PLRowComponent key={row.id} row={row} />
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </>
         )}
       </div>
     </AppShell>

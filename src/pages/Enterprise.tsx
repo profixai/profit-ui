@@ -1,11 +1,7 @@
 import { AppShell } from "@/components/AppShell";
 import { EnterpriseTrustPanel } from "@/components/saas/EnterpriseTrustPanel";
-import { CompetitiveComparison } from "@/components/saas/CompetitiveComparison";
-import { PackagingTiers } from "@/components/saas/PackagingTiers";
 import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
-import { packageTiers } from "@/lib/saas-data";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Shield, FileText, Download, Activity } from "lucide-react";
 
 const auditMetrics = [
@@ -19,9 +15,9 @@ const Enterprise = () => (
   <AppShell>
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Enterprise</h1>
+        <h1 className="text-lg font-semibold">Security & Governance</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Security, governance, and compliance controls for IT-safe deployment.
+          Audit logs, access controls, and compliance posture.
         </p>
       </div>
 
@@ -35,7 +31,6 @@ const Enterprise = () => (
         }}
       />
 
-      {/* ── Audit Metrics ───────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {auditMetrics.map((m) => (
           <Card key={m.label} className="p-4 space-y-1">
@@ -48,17 +43,7 @@ const Enterprise = () => (
         ))}
       </div>
 
-      {/* ── Trust Panel ─────────────────────────────────────── */}
       <EnterpriseTrustPanel />
-
-      {/* ── Competitive Positioning ─────────────────────────── */}
-      <CompetitiveComparison />
-
-      {/* ── Packaging ───────────────────────────────────────── */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-semibold">Plans & Packaging</h2>
-        <PackagingTiers tiers={packageTiers} />
-      </div>
     </div>
   </AppShell>
 );

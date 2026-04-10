@@ -2,7 +2,7 @@ import { ReactNode, useState, useCallback } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth, UserRole } from "@/contexts/AuthContext";
 import { AskProfixPanel } from "@/components/AskProfixPanel";
-import { Badge } from "@/components/ui/badge";
+import { ContextBar } from "@/components/ContextBar";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -18,8 +18,8 @@ import {
   Menu,
   X,
   ChevronDown,
+  FileText,
 } from "lucide-react";
-import { tierLabel, type Tier } from "@/lib/saas-types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,11 +31,6 @@ export interface AskProfixContext {
   openAskProfix: (question: string, contextLabel: string) => void;
 }
 
-interface NavSection {
-  label: string;
-  items: NavItem[];
-}
-
 interface NavItem {
   title: string;
   url: string;
@@ -43,59 +38,23 @@ interface NavItem {
   roles: UserRole[];
 }
 
-const navSections: NavSection[] = [
-  {
-    label: "Overview",
-    items: [
-      { title: "Overview", url: "/overview", icon: LayoutDashboard, roles: ["manager", "direction"] },
-    ],
-  },
-  {
-    label: "Operations",
-    items: [
-      { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["manager", "direction"] },
-      { title: "P&L Reporting", url: "/pl", icon: BarChart2, roles: ["manager", "direction"] },
-      { title: "Stock Entry", url: "/inventory", icon: ClipboardList, roles: ["inventory"] },
-      { title: "Data Upload", url: "/data", icon: Upload, roles: ["manager", "inventory"] },
-      { title: "Portfolio", url: "/multi-property", icon: Building2, roles: ["manager", "direction"] },
-    ],
-  },
-  {
-    label: "Insights",
-    items: [
-      { title: "AI Insights", url: "/insights", icon: Sparkles, roles: ["manager", "direction"] },
-    ],
-  },
-  {
-    label: "Enterprise",
-    items: [
-      { title: "Security & Governance", url: "/enterprise", icon: Shield, roles: ["manager", "direction"] },
-    ],
-  },
-  {
-    label: "Settings",
-    items: [
-      { title: "Settings", url: "/settings", icon: Settings, roles: ["manager", "direction", "inventory"] },
-    ],
-  },
+const navItems: NavItem[] = [
+  // Manager / Admin
+  { title: "Overview", url: "/overview", icon: LayoutDashboard, roles: ["manager", "direction"] },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["manager", "direction"] },
+  // Operator daily actions
+  { title: "P&L Reporting", url: "/pl", icon: BarChart2, roles: ["manager", "direction"] },
+  { title: "AI Insights", url: "/insights", icon: Sparkles, roles: ["manager", "direction"] },
+  { title: "Stock Entry", url: "/inventory", icon: ClipboardList, roles: ["inventory"] },
+  { title: "Data Upload", url: "/data", icon: Upload, roles: ["manager", "inventory"] },
+  // Manager portfolio
+  { title: "Portfolio", url: "/multi-property", icon: Building2, roles: ["manager", "direction"] },
+  // Admin only
+  { title: "Governance", url: "/enterprise", icon: Shield, roles: ["direction"] },
+  { title: "Why Profix", url: "/why-profix", icon: FileText, roles: ["direction"] },
+  // All roles
+  { title: "Settings", url: "/settings", icon: Settings, roles: ["manager", "direction", "inventory"] },
 ];
-
-const roleLabel: Record<UserRole, string> = {
-  direction: "Director",
-  manager: "Manager",
-  inventory: "Operations",
-};
-
-const roleBadgeClass: Record<UserRole, string> = {
-  direction: "bg-primary/10 text-primary border-primary/20",
-  manager: "bg-positive/10 text-positive border-positive/20",
-  inventory: "bg-accent/10 text-accent-foreground border-accent/20",
-};
-
-// Simulated tier — in production would come from subscription state
-const currentTier: Tier = "team";
-
-const envBadge = "Production";
 
 interface AppShellProps {
   children: ReactNode;
@@ -121,8 +80,7 @@ export const AppShell = ({ children }: AppShellProps) => {
     navigate("/login");
   };
 
-  const allNavItems = navSections.flatMap((s) => s.items).filter((item) => role && item.roles.includes(role));
-
+  const visibleNav = navItems.filter((item) => role && item.roles.includes(role));
   const isActive = (url: string) => location.pathname === url;
 
   return (
@@ -141,18 +99,11 @@ export const AppShell = ({ children }: AppShellProps) => {
             <img src="/profix-logo.svg" alt="Profix" className="h-7 w-7" />
             <span className="text-sm font-semibold tracking-tight text-foreground">Profix</span>
           </Link>
-
-          <Badge variant="outline" className="text-[9px] ml-1 hidden sm:flex bg-primary/5 text-primary border-primary/20">
-            {tierLabel[currentTier]}
-          </Badge>
-          <Badge variant="outline" className="text-[9px] hidden sm:flex bg-muted text-muted-foreground">
-            {envBadge}
-          </Badge>
         </div>
 
         {/* ── Primary Nav (desktop) ─────────────────────────── */}
         <nav className="hidden lg:flex items-center gap-1">
-          {allNavItems.map((item) => (
+          {visibleNav.map((item) => (
             <Link
               key={item.url}
               to={item.url}
@@ -169,11 +120,6 @@ export const AppShell = ({ children }: AppShellProps) => {
 
         {/* ── Right section ─────────────────────────────────── */}
         <div className="flex items-center gap-3">
-          {role && (
-            <Badge variant="outline" className={`text-[9px] hidden sm:flex ${roleBadgeClass[role]}`}>
-              {roleLabel[role]}
-            </Badge>
-          )}
           <button className="relative p-1.5 rounded-md hover:bg-muted transition-colors">
             <Bell className="h-4 w-4 text-muted-foreground" />
             <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-destructive text-[9px] font-semibold flex items-center justify-center text-destructive-foreground">
@@ -196,7 +142,7 @@ export const AppShell = ({ children }: AppShellProps) => {
               {user && (
                 <div className="px-2 py-1.5 border-b">
                   <p className="text-xs font-medium">{user.displayName}</p>
-                  <p className="text-[10px] text-muted-foreground">{role && roleLabel[role]}</p>
+                  <p className="text-[10px] text-muted-foreground">{role}</p>
                 </div>
               )}
               <DropdownMenuItem className="text-xs" onClick={() => navigate("/settings")}>
@@ -213,7 +159,7 @@ export const AppShell = ({ children }: AppShellProps) => {
       {/* ── Mobile Nav ──────────────────────────────────────── */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-b bg-card px-4 py-3 space-y-1 z-10">
-          {allNavItems.map((item) => (
+          {visibleNav.map((item) => (
             <Link
               key={item.url}
               to={item.url}
@@ -230,6 +176,9 @@ export const AppShell = ({ children }: AppShellProps) => {
           ))}
         </div>
       )}
+
+      {/* ── Context Bar ─────────────────────────────────────── */}
+      <ContextBar />
 
       {/* ── Main Content ────────────────────────────────────── */}
       <main className="flex-1 overflow-auto p-4 lg:p-6">
