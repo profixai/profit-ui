@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingState, ErrorState, EmptyState } from "@/components/ui/states";
 import {
   AlertTriangle, AlertCircle, Info, Check, Send, Bell,
 } from "lucide-react";
@@ -13,8 +14,7 @@ import { toast } from "sonner";
 import { useInsights } from "@/hooks/useInsights";
 import { InsightCard } from "@/services/api";
 import { sendTelegramMessage, formatInsightMessage, getTelegramConfig } from "@/services/telegram";
-import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
-import { pageValueBlocks } from "@/lib/saas-data";
+import { useProperty } from "@/contexts/PropertyContext";
 
 type Severity = "critical" | "warning" | "info";
 
@@ -28,8 +28,9 @@ const Insights = () => {
   const [filter, setFilter] = useState<"all" | Severity>("all");
   const [acknowledged, setAcknowledged] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
+  const { propertyId } = useProperty();
 
-  const { data: insights, loading } = useInsights("le-grand");
+  const { data: insights, loading, error } = useInsights(propertyId);
 
   const filtered = useMemo(
     () => {
@@ -61,7 +62,6 @@ const Insights = () => {
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto space-y-4">
-        <WhyThisMatters block={pageValueBlocks.insights} />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-base font-semibold">AI Insights</h1>
@@ -88,9 +88,15 @@ const Insights = () => {
 
         <div className="space-y-3">
           {loading ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-32 rounded-lg" />
-            ))
+            <LoadingState message="Loading insights…" rows={4} />
+          ) : error ? (
+            <ErrorState message={error} onRetry={() => window.location.reload()} />
+          ) : !insights || insights.length === 0 ? (
+            <EmptyState
+              message="No insights yet. Upload data to generate AI-driven alerts."
+              actionLabel="Upload Data"
+              onAction={() => navigate("/data")}
+            />
           ) : (
             filtered.map((insight) => {
               const cfg = severityConfig[insight.severity];

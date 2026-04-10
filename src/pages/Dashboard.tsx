@@ -1,7 +1,5 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
-import { pageValueBlocks } from "@/lib/saas-data";
 import { AppShell } from "@/components/AppShell";
 import { HeadlineRow } from "@/components/dashboard/HeadlineRow";
 import { KPICard } from "@/components/dashboard/KPICard";
@@ -11,19 +9,16 @@ import { BreakevenCard } from "@/components/dashboard/BreakevenCard";
 import { MonthlyDetailTable } from "@/components/dashboard/MonthlyDetailTable";
 import { InlineAIRow } from "@/components/dashboard/InlineAIRow";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProperty } from "@/contexts/PropertyContext";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import {
-  TrendingUp, TrendingDown, AlertTriangle, Building2, Send,
+  TrendingUp, TrendingDown, AlertTriangle, Building2,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { toast } from "sonner";
 import {
   mockMonthlyMargin,
   mockCostDrivers,
@@ -46,7 +41,6 @@ const kpiCards = [
   { key: "kpi-gop-margin", label: "GOP Margin", value: `${mockKPIs.gop_margin_pct}%`, delta: mockKPIs.margin_delta },
 ];
 
-// Direction-level KPIs (8 metrics)
 const directionKPIs = [
   { label: "Total Revenue", value: 298900, budget: 285000 },
   { label: "GOP", value: 128400, budget: 120000 },
@@ -76,41 +70,27 @@ const fmt = (v: number, isCurrency: boolean) => {
   return `€${v}`;
 };
 
-// ─── Direction Dashboard ──────────────────────────────────────────
 const DirectionDashboard = () => {
   const navigate = useNavigate();
+  const { propertyName } = useProperty();
 
   return (
     <div className="max-w-5xl mx-auto space-y-4 py-1">
-      <WhyThisMatters block={pageValueBlocks.dashboard} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-semibold text-foreground">Executive Overview</h1>
-          <p className="text-[11px] text-muted-foreground mt-0.5">Direction-level KPI summary</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{propertyName} · Direction-level KPI summary</p>
         </div>
-        <div className="flex gap-2">
-          <Select defaultValue="le-grand">
-            <SelectTrigger className="w-40 h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="le-grand">Le Grand Hôtel</SelectItem>
-              <SelectItem value="riviera">Riviera Palace</SelectItem>
-              <SelectItem value="alpine">Alpine Lodge</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 text-xs gap-1.5"
-            onClick={() => navigate("/multi-property")}
-          >
-            <Building2 className="h-3.5 w-3.5" /> Multi-Property
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 text-xs gap-1.5"
+          onClick={() => navigate("/multi-property")}
+        >
+          <Building2 className="h-3.5 w-3.5" /> Multi-Property
+        </Button>
       </div>
 
-      {/* KPI Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
         {directionKPIs.map((kpi) => {
           const delta = kpi.budget ? ((kpi.value - kpi.budget) / kpi.budget * 100).toFixed(1) : "0.0";
@@ -134,7 +114,6 @@ const DirectionDashboard = () => {
         })}
       </div>
 
-      {/* GOP Trend */}
       <Card className="p-4">
         <h2 className="text-sm font-medium mb-3">GOP Trend (12 Months)</h2>
         <ResponsiveContainer width="100%" height={220}>
@@ -148,7 +127,6 @@ const DirectionDashboard = () => {
         </ResponsiveContainer>
       </Card>
 
-      {/* Top 3 Critical Insights */}
       <Card className="p-4 space-y-3">
         <h2 className="text-sm font-medium">Critical Insights</h2>
         {criticalInsights.map((ins, i) => (
@@ -165,7 +143,6 @@ const DirectionDashboard = () => {
   );
 };
 
-// ─── Manager Dashboard ────────────────────────────────────────────
 const ManagerDashboard = () => {
   const [activeAI, setActiveAI] = useState<string | null>(null);
 
@@ -175,7 +152,6 @@ const ManagerDashboard = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-4 py-1">
-      <WhyThisMatters block={pageValueBlocks.dashboard} />
       <div>
         <h1 className="text-base font-semibold text-foreground">P&L Dashboard</h1>
         <p className="text-[11px] text-muted-foreground mt-0.5">

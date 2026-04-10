@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Upload as UploadIcon, FileSpreadsheet, AlertTriangle, CheckCircle2, Bot, ChevronDown, ChevronRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/states";
 import { mockVaultFiles, type VaultFile } from "@/lib/mock-data";
 
 function AnomalyAlert({ file }: { file: VaultFile }) {
@@ -85,6 +87,7 @@ function FileRow({ file }: { file: VaultFile }) {
 export default function DataVault() {
   const [tab, setTab] = useState<"all" | "pl" | "utility">("all");
   const [dragging, setDragging] = useState(false);
+  const navigate = useNavigate();
 
   const filteredFiles = tab === "all"
     ? mockVaultFiles
@@ -153,11 +156,19 @@ export default function DataVault() {
             )}
           </div>
 
-          <div className="bg-card rounded-lg border">
-            {filteredFiles.map((f) => (
-              <FileRow key={f.id} file={f} />
-            ))}
-          </div>
+          {filteredFiles.length === 0 ? (
+            <EmptyState
+              message="No files uploaded yet. Upload your first P&L file to get started."
+              actionLabel="Upload Data"
+              onAction={() => {}}
+            />
+          ) : (
+            <div className="bg-card rounded-lg border">
+              {filteredFiles.map((f) => (
+                <FileRow key={f.id} file={f} />
+              ))}
+            </div>
+          )}
         </motion.div>
       </div>
     </AppShell>
