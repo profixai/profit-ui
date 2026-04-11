@@ -1,3 +1,6 @@
+// ⚠️  CONTRACT-LOCKED — must mirror backend exactly.
+// Uses VITE_API_BASE as the single env var.
+
 export interface TelegramConfig {
   botToken: string;
   chatId: string;
@@ -16,7 +19,7 @@ export function getTelegramConfig(): TelegramConfig | null {
 }
 
 export async function sendTelegramMessage(message: string): Promise<boolean> {
-  const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+  const BASE = import.meta.env.VITE_API_BASE ?? "";
   if (BASE) {
     try {
       const res = await fetch(`${BASE}/api/v1/notify/telegram`, {
@@ -30,7 +33,6 @@ export async function sendTelegramMessage(message: string): Promise<boolean> {
     }
   }
 
-  // fallback: direct Bot API (local dev without backend)
   const config = getTelegramConfig();
   if (!config) return false;
 
@@ -62,5 +64,5 @@ export function formatInsightMessage(insight: {
   recommendation: string;
 }): string {
   const emoji = insight.severity === "critical" ? "🔴" : insight.severity === "warning" ? "🟡" : "🔵";
-  return `${emoji} *ProfitPulse Alert*\n\n*${insight.title}*\n📊 ${insight.metric}: ${insight.actual} (threshold: ${insight.threshold})\n\n💡 ${insight.recommendation}`;
+  return `${emoji} *Profix Alert*\n\n*${insight.title}*\n📊 ${insight.metric}: ${insight.actual} (threshold: ${insight.threshold})\n\n💡 ${insight.recommendation}`;
 }

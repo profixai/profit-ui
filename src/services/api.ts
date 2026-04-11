@@ -1,102 +1,82 @@
 // ─── API Service Layer ─────────────────────────────────────────
-// Single source of truth for all backend calls.
-// Currently returns mock data via async wrappers.
-// When VITE_API_BASE_URL is set, functions will use real fetch calls.
+// ⚠️  CONTRACT-LOCKED — must mirror backend exactly.
+// Uses VITE_API_BASE as the single env var for backend URL.
+// When empty or on fetch failure, returns mock data in the same
+// APIResponse<T> envelope so consumers never see a shape difference.
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+import type {
+  APIResponse,
+  USALIKpi,
+  USALIRow,
+  PLResponse,
+  InsightCard,
+  InventoryEntry,
+  PropertySummary,
+} from "@/contracts";
 
-// ─── Response Envelope ────────────────────────────────────────
-export interface APIResponse<T> {
-  data: T;
-  ok: boolean;
-  error?: string;
-  requestId: string;
-  timestamp: string;
+// Re-export types so existing imports from "@/services/api" keep working
+export type { APIResponse, InsightCard, InventoryEntry, PropertySummary };
+export type KPIMetric = USALIKpi;
+export type PLRow = USALIRow;
+export type { PLResponse };
+
+const BASE = import.meta.env.VITE_API_BASE ?? "";
+
+// ─── Helpers ──────────────────────────────────────────────────
+
+function ok<T>(data: T): APIResponse<T> {
+  return {
+    ok: true,
+    data,
+    error: null,
+    request_id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+  };
 }
 
-function wrapResponse<T>(data: T): APIResponse<T> {
+function err<T>(message: string): APIResponse<T> {
   return {
-    data,
-    ok: true,
-    requestId: crypto.randomUUID(),
+    ok: false,
+    data: null,
+    error: message,
+    request_id: crypto.randomUUID(),
     timestamp: new Date().toISOString(),
   };
 }
 
 function delay<T>(data: T, ms = 300): Promise<APIResponse<T>> {
-  return new Promise((resolve) => setTimeout(() => resolve(wrapResponse(data)), ms));
+  return new Promise((resolve) => setTimeout(() => resolve(ok(data)), ms));
 }
 
-// ─── Interfaces ───────────────────────────────────────────────
-export interface KPIMetric {
-  label: string;
-  value: number;
-  budget: number;
-  format: "currency" | "pct";
-}
+/**
+ * fetchWithFallback — single helper for all API calls.
+ * Tries real fetch when BASE is set; on failure falls back to mock.
+ */
+async function fetchWithFallback<T>(
+  path: string,
+  mockFactory: () => T,
+  init?: RequestInit,
+): Promise<APIResponse<T>> {
+  if (!BASE) return delay(mockFactory());
 
-export interface PLRow {
-  id: string;
-  label: string;
-  actual: number;
-  budget: number;
-  sparkline: number[];
-  isSummary?: boolean;
-  children?: PLRow[];
-}
-
-export interface PLResponse {
-  kpis: KPIMetric[];
-  rows: PLRow[];
-  meta: {
-    property: string;
-    year: number;
-    month: string;
-    period: "daily" | "monthly" | "ytd";
-    generatedAt: string;
-  };
-}
-
-export interface InsightCard {
-  id: string;
-  severity: "critical" | "warning" | "info";
-  title: string;
-  metric: string;
-  actual: number;
-  threshold: number;
-  context: string;
-  recommendation: string;
-  acknowledged: boolean;
-  department: string;
-  timestamp: string;
-}
-
-export interface InventoryEntry {
-  id: string;
-  department: string;
-  category: string;
-  quantity: number;
-  unit: string;
-  value: number;
-  date: string;
-  submittedBy: string;
-  status: "draft" | "submitted";
-}
-
-export interface PropertySummary {
-  id: string;
-  name: string;
-  revpar: number;
-  occ: number;
-  adr: number;
-  gop: number;
-  gopBudget: number;
-  anomalies: string[];
+  try {
+    const res = await fetch(`${BASE}${path}`, init);
+    if (!res.ok) {
+      const text = await res.text().catch(() => "Unknown error");
+      console.warn(`[api] ${path} → ${res.status}: ${text}`);
+      // Graceful fallback to mock
+      return delay(mockFactory());
+    }
+    return res.json();
+  } catch (e) {
+    console.warn(`[api] ${path} fetch failed, using mock:`, e);
+    return delay(mockFactory());
+  }
 }
 
 // ─── Mock Data ────────────────────────────────────────────────
 
-const mockKPIs: KPIMetric[] = [
+const mockKPIs: USALIKpi[] = [
   { label: "Total Revenue", value: 298900, budget: 285000, format: "currency" },
   { label: "GOP", value: 128400, budget: 120000, format: "currency" },
   { label: "NOI / EBITDA", value: 94200, budget: 90000, format: "currency" },
@@ -107,7 +87,7 @@ const mockKPIs: KPIMetric[] = [
   { label: "Flow-Through", value: 62, budget: 65, format: "pct" },
 ];
 
-const mockPLRows: PLRow[] = [
+const mockPLRows: USALIRow[] = [
   {
     id: "rooms-rev", label: "Rooms Revenue", actual: 198500, budget: 190000,
     sparkline: [175000, 180000, 195000, 210000, 200000, 198500],
@@ -167,70 +147,14 @@ const mockPLRows: PLRow[] = [
 ];
 
 const mockInsights: InsightCard[] = [
-  {
-    id: "1", severity: "critical", department: "F&B",
-    title: "F&B Cost % exceeded budget by 4.2 pts this week",
-    metric: "F&B Cost %", actual: 33.8, threshold: 30,
-    context: "F&B Cost of Sales reached 33.8% against a 30% budget target. The primary driver is a 12% increase in protein costs from the main supplier, combined with higher-than-normal wastage rates in the breakfast buffet service.",
-    recommendation: "Review portion control and renegotiate supplier contracts. Consider switching to seasonal menu items.",
-    acknowledged: false, timestamp: "2026-04-01 08:15",
-  },
-  {
-    id: "2", severity: "critical", department: "Rooms",
-    title: "RevPAR declined 11% vs. same period last year",
-    metric: "RevPAR", actual: 142, threshold: 160,
-    context: "RevPAR dropped from €160 to €142. ADR held steady at €192 but occupancy fell from 83% to 74%. The decline coincides with a new competitor opening 2km away and reduced conference bookings.",
-    recommendation: "Launch targeted weekend packages and review OTA commission structure.",
-    acknowledged: false, timestamp: "2026-04-01 07:30",
-  },
-  {
-    id: "3", severity: "warning", department: "Energy",
-    title: "Electricity consumption 15% above seasonal norm",
-    metric: "Electricity kWh", actual: 42000, threshold: 36500,
-    context: "March electricity usage spiked to 42,000 kWh vs. the 36,500 kWh seasonal average. HVAC runtime increased by 22% despite moderate outdoor temperatures.",
-    recommendation: "Check BMS scheduling and occupancy sensor calibration.",
-    acknowledged: false, timestamp: "2026-03-31 18:00",
-  },
-  {
-    id: "4", severity: "warning", department: "Payroll",
-    title: "Overtime hours up 18% in Housekeeping",
-    metric: "Overtime Hours", actual: 340, threshold: 288,
-    context: "Housekeeping logged 340 overtime hours this month, up from 288 last month. Contributing factors include two staff vacancies and a 6% increase in room turnover rate.",
-    recommendation: "Accelerate recruitment for open positions and review scheduling efficiency.",
-    acknowledged: false, timestamp: "2026-03-31 14:22",
-  },
-  {
-    id: "5", severity: "info", department: "Rooms",
-    title: "Weekend occupancy trending above forecast",
-    metric: "Weekend OCC%", actual: 88, threshold: 82,
-    context: "Weekend OCC% averaged 88% over the last 4 weeks vs. 82% forecast. Consider dynamic pricing adjustments for Fri–Sun to capture additional revenue.",
-    recommendation: "Implement dynamic pricing for weekends. Estimated uplift: €2,800/month.",
-    acknowledged: false, timestamp: "2026-03-30 09:45",
-  },
-  {
-    id: "6", severity: "info", department: "F&B",
-    title: "Room service revenue up 24% after menu refresh",
-    metric: "Room Service Revenue", actual: 10200, threshold: 8200,
-    context: "The Q1 menu update has driven room service revenue from €8,200 to €10,200/month. Top performers are the new breakfast bowl (+€1,100) and evening tapas selection (+€900).",
-    recommendation: "Consider expanding room service availability hours.",
-    acknowledged: false, timestamp: "2026-03-29 16:30",
-  },
-  {
-    id: "7", severity: "warning", department: "Energy",
-    title: "Water consumption anomaly detected in Q3 data",
-    metric: "Water L/guest-night", actual: 520, threshold: 395,
-    context: "Water intensity spiked to 520 L/guest-night in Q3 — a 31.6% jump from Q2. This correlates with peak summer occupancy but exceeds the expected proportional increase.",
-    recommendation: "Investigate possible leaks or irrigation system issues.",
-    acknowledged: false, timestamp: "2026-03-28 11:15",
-  },
-  {
-    id: "8", severity: "critical", department: "Payroll",
-    title: "Payroll % of revenue at 30.2% — above 28% threshold",
-    metric: "Payroll %", actual: 30.2, threshold: 28,
-    context: "Total payroll costs reached €90,300 against €298,900 revenue. The ratio exceeds the USALI mid-scale benchmark of 28%. Key drivers: management salary increases (+3.8%) and unfilled positions requiring agency staff.",
-    recommendation: "Review agency staff costs and accelerate direct hiring.",
-    acknowledged: false, timestamp: "2026-03-27 08:00",
-  },
+  { id: "1", severity: "critical", department: "F&B", title: "F&B Cost % exceeded budget by 4.2 pts this week", metric: "F&B Cost %", actual: 33.8, threshold: 30, context: "F&B Cost of Sales reached 33.8% against a 30% budget target.", recommendation: "Review portion control and renegotiate supplier contracts.", acknowledged: false, timestamp: "2026-04-01 08:15" },
+  { id: "2", severity: "critical", department: "Rooms", title: "RevPAR declined 11% vs. same period last year", metric: "RevPAR", actual: 142, threshold: 160, context: "RevPAR dropped from €160 to €142. ADR held steady at €192 but occupancy fell from 83% to 74%.", recommendation: "Launch targeted weekend packages and review OTA commission structure.", acknowledged: false, timestamp: "2026-04-01 07:30" },
+  { id: "3", severity: "warning", department: "Energy", title: "Electricity consumption 15% above seasonal norm", metric: "Electricity kWh", actual: 42000, threshold: 36500, context: "March electricity usage spiked to 42,000 kWh vs. the 36,500 kWh seasonal average.", recommendation: "Check BMS scheduling and occupancy sensor calibration.", acknowledged: false, timestamp: "2026-03-31 18:00" },
+  { id: "4", severity: "warning", department: "Payroll", title: "Overtime hours up 18% in Housekeeping", metric: "Overtime Hours", actual: 340, threshold: 288, context: "Housekeeping logged 340 overtime hours this month.", recommendation: "Accelerate recruitment for open positions.", acknowledged: false, timestamp: "2026-03-31 14:22" },
+  { id: "5", severity: "info", department: "Rooms", title: "Weekend occupancy trending above forecast", metric: "Weekend OCC%", actual: 88, threshold: 82, context: "Weekend OCC% averaged 88% over the last 4 weeks vs. 82% forecast.", recommendation: "Implement dynamic pricing for weekends. Estimated uplift: €2,800/month.", acknowledged: false, timestamp: "2026-03-30 09:45" },
+  { id: "6", severity: "info", department: "F&B", title: "Room service revenue up 24% after menu refresh", metric: "Room Service Revenue", actual: 10200, threshold: 8200, context: "The Q1 menu update has driven room service revenue from €8,200 to €10,200/month.", recommendation: "Consider expanding room service availability hours.", acknowledged: false, timestamp: "2026-03-29 16:30" },
+  { id: "7", severity: "warning", department: "Energy", title: "Water consumption anomaly detected in Q3 data", metric: "Water L/guest-night", actual: 520, threshold: 395, context: "Water intensity spiked to 520 L/guest-night in Q3.", recommendation: "Investigate possible leaks or irrigation system issues.", acknowledged: false, timestamp: "2026-03-28 11:15" },
+  { id: "8", severity: "critical", department: "Payroll", title: "Payroll % of revenue at 30.2% — above 28% threshold", metric: "Payroll %", actual: 30.2, threshold: 28, context: "Total payroll costs reached €90,300 against €298,900 revenue.", recommendation: "Review agency staff costs and accelerate direct hiring.", acknowledged: false, timestamp: "2026-03-27 08:00" },
 ];
 
 const mockInventoryEntries: Record<string, InventoryEntry[]> = {
@@ -267,84 +191,60 @@ const mockProperties: PropertySummary[] = [
 
 // ─── API Functions ────────────────────────────────────────────
 
-// BACKEND ENDPOINT: GET /api/v1/pl
-// Params: PLRequestParams
-// Response: APIResponse<PLResponse>
 export async function fetchPL(params: {
   property: string;
   year: number;
   month: string;
   period: "daily" | "monthly" | "ytd";
 }): Promise<APIResponse<PLResponse>> {
-  if (BASE_URL) {
-    const res = await fetch(`${BASE_URL}/api/v1/pl`, {
+  return fetchWithFallback<PLResponse>(
+    "/api/v1/pl",
+    () => ({
+      kpis: mockKPIs,
+      rows: mockPLRows,
+      metadata: {
+        property_id: params.property,
+        period: `${params.year}-${params.month}-${params.period}`,
+        generated_at: new Date().toISOString(),
+      },
+    }),
+    {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),
-    });
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-  }
-  return delay({
-    kpis: mockKPIs,
-    rows: mockPLRows,
-    meta: {
-      property: params.property,
-      year: params.year,
-      month: params.month,
-      period: params.period,
-      generatedAt: new Date().toISOString(),
     },
-  });
+  );
 }
 
-// BACKEND ENDPOINT: GET /api/v1/insights
-// Params: { propertyId: string }
-// Response: APIResponse<InsightCard[]>
 export async function fetchInsights(propertyId: string): Promise<APIResponse<InsightCard[]>> {
-  if (BASE_URL) {
-    const res = await fetch(`${BASE_URL}/api/v1/insights?propertyId=${propertyId}`);
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-  }
-  return delay(mockInsights);
+  return fetchWithFallback<InsightCard[]>(
+    `/api/v1/insights?propertyId=${propertyId}`,
+    () => mockInsights,
+  );
 }
 
-// BACKEND ENDPOINT: GET /api/v1/inventory
-// Params: { department: string, date: string }
-// Response: APIResponse<InventoryEntry[]>
 export async function fetchInventory(department: string, date: string): Promise<APIResponse<InventoryEntry[]>> {
-  if (BASE_URL) {
-    const res = await fetch(`${BASE_URL}/api/v1/inventory?department=${department}&date=${date}`);
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-  }
-  return delay(mockInventoryEntries[department] || []);
+  return fetchWithFallback<InventoryEntry[]>(
+    `/api/v1/inventory?department=${department}&date=${date}`,
+    () => mockInventoryEntries[department] || [],
+  );
 }
 
-// BACKEND ENDPOINT: POST /api/v1/inventory
-// Params: InventorySubmitPayload
-// Response: APIResponse<{ success: boolean; submissionId: string }>
 export async function submitInventory(entries: InventoryEntry[]): Promise<APIResponse<{ success: boolean; submissionId: string }>> {
-  if (BASE_URL) {
-    const res = await fetch(`${BASE_URL}/api/v1/inventory`, {
+  return fetchWithFallback<{ success: boolean; submissionId: string }>(
+    "/api/v1/inventory",
+    () => ({ success: true, submissionId: crypto.randomUUID() }),
+    {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(entries),
-    });
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-  }
-  return delay({ success: true, submissionId: crypto.randomUUID() });
+    },
+  );
 }
 
-// BACKEND ENDPOINT: GET /api/v1/multi-property
-// Response: APIResponse<PropertySummary[]>
 export async function fetchMultiProperty(): Promise<APIResponse<PropertySummary[]>> {
-  if (BASE_URL) {
-    const res = await fetch(`${BASE_URL}/api/v1/multi-property`);
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-  }
-  return delay(mockProperties);
+  return fetchWithFallback<PropertySummary[]>(
+    "/api/v1/multi-property",
+    () => mockProperties,
+  );
 }

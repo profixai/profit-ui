@@ -3,22 +3,19 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth, UserRole } from "@/contexts/AuthContext";
 import { AskProfixPanel } from "@/components/AskProfixPanel";
 import { ContextBar } from "@/components/ContextBar";
+import { GeoBg } from "@/components/GeoBg";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   BarChart2,
   Sparkles,
-  Shield,
   Settings,
-  ClipboardList,
   Upload,
-  Building2,
   LogOut,
   Bell,
   Menu,
   X,
   ChevronDown,
-  FileText,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -38,22 +35,14 @@ interface NavItem {
   roles: UserRole[];
 }
 
+// ─── MVP-only navigation ──────────────────────────────────────
 const navItems: NavItem[] = [
-  // Manager / Admin
-  { title: "Overview", url: "/overview", icon: LayoutDashboard, roles: ["manager", "direction"] },
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["manager", "direction"] },
-  // Operator daily actions
-  { title: "P&L Reporting", url: "/pl", icon: BarChart2, roles: ["manager", "direction"] },
-  { title: "AI Insights", url: "/insights", icon: Sparkles, roles: ["manager", "direction"] },
-  { title: "Stock Entry", url: "/inventory", icon: ClipboardList, roles: ["inventory"] },
-  { title: "Data Upload", url: "/data", icon: Upload, roles: ["manager", "inventory"] },
-  // Manager portfolio
-  { title: "Portfolio", url: "/multi-property", icon: Building2, roles: ["manager", "direction"] },
-  // Admin only
-  { title: "Governance", url: "/enterprise", icon: Shield, roles: ["direction"] },
-  { title: "Why Profix", url: "/why-profix", icon: FileText, roles: ["direction"] },
-  // All roles
-  { title: "Settings", url: "/settings", icon: Settings, roles: ["manager", "direction", "inventory"] },
+  { title: "Overview",   url: "/overview",   icon: LayoutDashboard, roles: ["manager", "direction"] },
+  { title: "Dashboard",  url: "/dashboard",  icon: BarChart2,       roles: ["manager", "direction"] },
+  { title: "P&L",        url: "/pl",         icon: BarChart2,       roles: ["manager", "direction"] },
+  { title: "Insights",   url: "/insights",   icon: Sparkles,        roles: ["manager", "direction"] },
+  { title: "Data Vault", url: "/data",       icon: Upload,          roles: ["manager", "direction", "inventory"] },
+  { title: "Settings",   url: "/settings",   icon: Settings,        roles: ["manager", "direction", "inventory"] },
 ];
 
 interface AppShellProps {
@@ -84,20 +73,23 @@ export const AppShell = ({ children }: AppShellProps) => {
   const isActive = (url: string) => location.pathname === url;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background relative">
+      <GeoBg />
+
       {/* ── Top Header ──────────────────────────────────────── */}
-      <header className="h-14 border-b bg-card flex items-center justify-between px-4 lg:px-6 shrink-0 z-20">
+      <header className="h-14 border-b bg-card/80 backdrop-blur flex items-center justify-between px-4 lg:px-6 shrink-0 z-20 relative">
         <div className="flex items-center gap-3">
           <button
-            className="lg:hidden p-1.5 rounded-md hover:bg-muted transition-colors"
+            className="lg:hidden p-1.5 rounded-md hover:bg-secondary transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
           <Link to="/" className="flex items-center gap-2">
-            <img src="/profix-logo.svg" alt="Profix" className="h-7 w-7" />
-            <span className="text-sm font-semibold tracking-tight text-foreground">Profix</span>
+            <span className="text-base font-extrabold tracking-widest text-foreground">
+              PROFi<span className="text-primary">X</span>
+            </span>
           </Link>
         </div>
 
@@ -109,8 +101,8 @@ export const AppShell = ({ children }: AppShellProps) => {
               to={item.url}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                 isActive(item.url)
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
               }`}
             >
               {item.title}
@@ -120,7 +112,7 @@ export const AppShell = ({ children }: AppShellProps) => {
 
         {/* ── Right section ─────────────────────────────────── */}
         <div className="flex items-center gap-3">
-          <button className="relative p-1.5 rounded-md hover:bg-muted transition-colors">
+          <button className="relative p-1.5 rounded-md hover:bg-secondary transition-colors">
             <Bell className="h-4 w-4 text-muted-foreground" />
             <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-destructive text-[9px] font-semibold flex items-center justify-center text-destructive-foreground">
               3
@@ -129,8 +121,8 @@ export const AppShell = ({ children }: AppShellProps) => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 p-1 rounded-md hover:bg-muted transition-colors">
-                <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <button className="flex items-center gap-1.5 p-1 rounded-md hover:bg-secondary transition-colors">
+                <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center">
                   <span className="text-[10px] font-semibold text-primary">
                     {user ? user.displayName.split(" ").map((w) => w[0]).join("") : "?"}
                   </span>
@@ -158,7 +150,7 @@ export const AppShell = ({ children }: AppShellProps) => {
 
       {/* ── Mobile Nav ──────────────────────────────────────── */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b bg-card px-4 py-3 space-y-1 z-10">
+        <div className="lg:hidden border-b bg-card/90 backdrop-blur px-4 py-3 space-y-1 z-10 relative">
           {visibleNav.map((item) => (
             <Link
               key={item.url}
@@ -166,8 +158,8 @@ export const AppShell = ({ children }: AppShellProps) => {
               onClick={() => setMobileMenuOpen(false)}
               className={`flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
                 isActive(item.url)
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
               }`}
             >
               <item.icon className="h-4 w-4" />
@@ -181,7 +173,7 @@ export const AppShell = ({ children }: AppShellProps) => {
       <ContextBar />
 
       {/* ── Main Content ────────────────────────────────────── */}
-      <main className="flex-1 overflow-auto p-4 lg:p-6">
+      <main className="flex-1 overflow-auto p-4 lg:p-6 relative z-[1]">
         {typeof children === "function"
           ? (children as (ctx: AskProfixContext) => ReactNode)({ openAskProfix })
           : children}
