@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Inter"', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"DM Mono"', '"Fira Code"', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -38,6 +38,10 @@ export default {
         positive: {
           DEFAULT: "hsl(var(--positive))",
           foreground: "hsl(var(--positive-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
