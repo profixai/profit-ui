@@ -8,6 +8,9 @@ import { CostBreakdownSection } from "@/components/dashboard/CostBreakdownSectio
 import { BreakevenCard } from "@/components/dashboard/BreakevenCard";
 import { MonthlyDetailTable } from "@/components/dashboard/MonthlyDetailTable";
 import { InlineAIRow } from "@/components/dashboard/InlineAIRow";
+import { ExpectedInvoicesCard } from "@/components/dashboard/ExpectedInvoicesCard";
+import { QuickActionsCard } from "@/components/dashboard/QuickActionsCard";
+import { ThisMonthMetricsCard } from "@/components/dashboard/ThisMonthMetricsCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProperty } from "@/contexts/PropertyContext";
 import { Card } from "@/components/ui/card";
@@ -26,6 +29,8 @@ import {
   mockBreakeven,
   mockKPIs,
   mockAIResponses,
+  mockExpectedInvoices,
+  mockThisMonthMetrics,
 } from "@/lib/mock-data";
 
 const formatCurrency = (v: number) => {
@@ -196,6 +201,14 @@ const ManagerDashboard = () => {
         visible={activeAI === "margin-trend"}
         content={mockAIResponses["margin-trend"] || ""}
       />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ExpectedInvoicesCard invoices={mockExpectedInvoices} />
+        <div className="flex flex-col gap-4">
+          <QuickActionsCard />
+          <ThisMonthMetricsCard metrics={mockThisMonthMetrics} />
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">

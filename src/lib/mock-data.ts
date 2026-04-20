@@ -432,3 +432,37 @@ export const mockAIResponses: Record<string, string> = {
   "dept-Utilities": "<b>Utilities</b> at 12.4% are concerning — electricity alone spiked 38.2%. This correlates with the Q3 peak season but also suggests potential inefficiency. Consider smart HVAC controls.",
   "driver-Electricity": "<b>Electricity</b> at €11.2K (7.4% of costs) spiked <b>38.2% vs prior period</b>. This is a significant anomaly. Possible causes: seasonal cooling demand, rate increases, or equipment inefficiency. Recommend reviewing the utility upload for meter-level detail.",
 };
+
+// ─── Expected Invoices (recurring contracts) ─────────────────────
+export type ExpectedInvoiceStatus = "expected" | "overdue";
+
+export interface ExpectedInvoice {
+  id: string;
+  vendor: string;
+  contractId: string;
+  amount: number;
+  currency: "EUR" | "USD" | "GBP";
+  dueDate: string;
+  status: ExpectedInvoiceStatus;
+}
+
+export const mockExpectedInvoices: ExpectedInvoice[] = [
+  { id: "ei-1", vendor: "AWS Cloud Services", contractId: "CNT-2024-045", amount: 4200, currency: "EUR", dueDate: "Dec 1, 2024", status: "expected" },
+  { id: "ei-2", vendor: "Microsoft 365", contractId: "CNT-2024-023", amount: 1850, currency: "EUR", dueDate: "Dec 5, 2024", status: "expected" },
+  { id: "ei-3", vendor: "Office Lease", contractId: "CNT-2024-001", amount: 12000, currency: "EUR", dueDate: "Dec 15, 2024", status: "overdue" },
+];
+
+// ─── This-Month performance metrics ──────────────────────────────
+export interface ThisMonthMetrics {
+  invoicesProcessed: number;
+  avgApprovalTimeDays: number;
+  totalSpend: number;
+  currency: "EUR" | "USD" | "GBP";
+}
+
+export const mockThisMonthMetrics: ThisMonthMetrics = {
+  invoicesProcessed: 142,
+  avgApprovalTimeDays: 1.8,
+  totalSpend: 847320,
+  currency: "EUR",
+};
