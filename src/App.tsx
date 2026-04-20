@@ -14,6 +14,7 @@ import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import ProfitLoss from "./pages/ProfitLoss";
 import Overview from "./pages/Overview";
+import InvoiceDetail from "./pages/InvoiceDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,9 @@ const App = () => (
               <Route path="/insights" element={<ProtectedRoute allowedRoles={["manager", "direction"]}><Insights /></ProtectedRoute>} />
               <Route path="/data" element={<ProtectedRoute><DataVault /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              {/* Invoice approval (mock data, v0 design) — reachable by URL, not in main nav */}
+              <Route path="/invoices" element={<Navigate to="/invoices/INV-2024-001" replace />} />
+              <Route path="/invoices/:id" element={<ProtectedRoute allowedRoles={["manager", "direction"]}><InvoiceDetail /></ProtectedRoute>} />
               {/* Non-MVP routes removed from navigation but kept as catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
