@@ -44,19 +44,38 @@ export interface PLResponse {
 }
 
 // ─── Insight ──────────────────────────────────────────────────
+// Backend canonical fields: id, severity (high|medium|low), category,
+// title, body, department?, generated_at.
+// UI extended fields (kept for current Insights page UX): metric, actual,
+// threshold, context, recommendation, acknowledged, timestamp.
+// The mapping helpers below normalize between backend and UI severity.
+export type BackendSeverity = "high" | "medium" | "low";
+export type UISeverity = "critical" | "warning" | "info";
+
 export interface InsightCard {
   id: string;
-  severity: "critical" | "warning" | "info";
+  severity: UISeverity;          // UI-facing
+  backendSeverity?: BackendSeverity;
+  category?: string;
   title: string;
+  body?: string;
+  department: string;
+  generated_at?: string;
+  // ── UI-only extensions (optional on backend) ──
   metric: string;
   actual: number;
   threshold: number;
   context: string;
   recommendation: string;
   acknowledged: boolean;
-  department: string;
   timestamp: string;
 }
+
+export const backendToUISeverity: Record<BackendSeverity, UISeverity> = {
+  high: "critical",
+  medium: "warning",
+  low: "info",
+};
 
 // ─── Inventory ────────────────────────────────────────────────
 export interface InventoryEntry {
