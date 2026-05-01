@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth, saveLastRoute } from "@/contexts/AuthContext";
 import { PropertyProvider } from "@/contexts/PropertyContext";
+import { BackendStatusProvider } from "@/contexts/BackendStatusContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Insights from "./pages/Insights";
@@ -43,6 +44,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        <BackendStatusProvider>
         <PropertyProvider>
           <Toaster />
           <Sonner />
@@ -66,6 +68,7 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </PropertyProvider>
+        </BackendStatusProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
