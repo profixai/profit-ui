@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth, saveLastRoute } from "@/contexts/AuthContext";
 import { PropertyProvider } from "@/contexts/PropertyContext";
 import { BackendStatusProvider } from "@/contexts/BackendStatusContext";
+import { TierProvider } from "@/contexts/TierContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Insights from "./pages/Insights";
