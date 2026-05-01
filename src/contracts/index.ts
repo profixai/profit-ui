@@ -1,6 +1,6 @@
+// CONTRACT — must mirror backend finops-platform-profix exactly
 // ─── API Contracts ─────────────────────────────────────────────
-// ⚠️  CONTRACT-LOCKED — must mirror backend exactly.
-// Any change here must be coordinated with finops-platform-profix/backend.
+// ⚠️  CONTRACT-LOCKED — coordinate any change with finops-platform-profix/backend.
 
 // ─── Canonical Response Envelope ──────────────────────────────
 export interface APIResponse<T> {

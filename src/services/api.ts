@@ -1,5 +1,5 @@
+// CONTRACT — must mirror backend finops-platform-profix exactly
 // ─── API Service Layer ─────────────────────────────────────────
-// ⚠️  CONTRACT-LOCKED — must mirror backend exactly.
 // Uses VITE_API_BASE as the single env var for backend URL.
 // When empty or on fetch failure, returns mock data in the same
 // APIResponse<T> envelope so consumers never see a shape difference.
