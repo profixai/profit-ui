@@ -19,7 +19,16 @@ Login with demo credentials:
 
 | Variable | Description |
 |----------|-------------|
-| `VITE_API_BASE` | FastAPI backend URL. Leave empty for mock data. |
+| `VITE_API_BASE` | FastAPI backend URL (default port 8100). Leave empty for mock data. |
+| `VITE_TENANT_ID` | Local-dev fallback tenant id when JWT claim is unavailable. |
+
+## Production-readiness layer (Tasks 1–5)
+
+- **Backend status** — `/health` is polled every 60s by `BackendStatusContext`. The Context Bar shows a Live / Degraded / Offline · Mock dot on every page.
+- **Contracts** — `src/contracts/index.ts` and `src/services/api.ts` are marked `CONTRACT — must mirror backend finops-platform-profix exactly`. All calls go through `fetchWithFallback<T>()`, returning the canonical `APIResponse<T>` envelope and falling back to mock silently on failure.
+- **JWT + tenant** — `getAuthHeaders()` injects `Authorization: Bearer <supabase-jwt>` on every authenticated call and resolves `tenant_id` from JWT claims (with `VITE_TENANT_ID` fallback). Missing tenant → console warn + mock fallback, never a UI break.
+- **Tier gating** — `useTier()` + `<TierGate requires="team|enterprise">` gate AI Insights and Telegram notifications. Free tier still sees the full MVP shell with an in-place upgrade card.
+- **Value-selling layer** — `<ValueMetricBar />` and `<CompetitivePositionTable />` appear only for the Admin (`direction`) role: on Overview and on the dedicated `/why-profix` page.
 
 ## Architecture
 

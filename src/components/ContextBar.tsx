@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useProperty, properties } from "@/contexts/PropertyContext";
+import { useBackendStatus } from "@/contexts/BackendStatusContext";
 import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -32,6 +33,14 @@ const granularityLabel: Record<string, string> = {
 export const ContextBar = () => {
   const { role } = useAuth();
   const { propertyId, propertyName, setProperty, period } = useProperty();
+  const backend = useBackendStatus();
+
+  const statusMeta =
+    backend.status === "live"
+      ? { label: "Live", className: "fill-positive text-positive" }
+      : backend.status === "degraded"
+      ? { label: "Degraded", className: "fill-accent text-accent" }
+      : { label: "Offline · Mock", className: "fill-muted-foreground text-muted-foreground" };
 
   const canSwitch = role === "manager" || role === "direction";
 
@@ -68,10 +77,10 @@ export const ContextBar = () => {
 
       <span className="text-muted-foreground">·</span>
 
-      {/* Data freshness */}
-      <div className="flex items-center gap-1.5">
-        <Circle className="h-2 w-2 fill-positive text-positive" />
-        <span className="text-muted-foreground">Synced 2h ago</span>
+      {/* Backend status */}
+      <div className="flex items-center gap-1.5" title={backend.version ? `v${backend.version}` : undefined}>
+        <Circle className={`h-2 w-2 ${statusMeta.className}`} />
+        <span className="text-muted-foreground">{statusMeta.label}</span>
       </div>
 
       <div className="ml-auto">

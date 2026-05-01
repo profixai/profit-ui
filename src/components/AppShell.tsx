@@ -43,6 +43,7 @@ const navItems: NavItem[] = [
   { title: "Insights",   url: "/insights",   icon: Sparkles,        roles: ["manager", "direction"] },
   { title: "Data Vault", url: "/data",       icon: Upload,          roles: ["manager", "direction", "inventory"] },
   { title: "Settings",   url: "/settings",   icon: Settings,        roles: ["manager", "direction", "inventory"] },
+  { title: "Why Profix", url: "/why-profix", icon: Sparkles,        roles: ["direction"] },
 ];
 
 interface AppShellProps {

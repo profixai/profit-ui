@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { sendTelegramMessage } from "@/services/telegram";
 import { WhyThisMatters } from "@/components/saas/WhyThisMatters";
 import { pageValueBlocks } from "@/lib/saas-data";
+import { TierGate } from "@/components/TierGate";
 
 const STORAGE_KEY = "pp_notification_settings";
 
@@ -171,6 +172,7 @@ const Settings = () => {
 
           <TabsContent value="notifications" ref={notifRef} className="space-y-8 mt-6">
             {/* Telegram Bot */}
+            <TierGate requires="team" feature="Telegram alerts">
             <Card className="p-4 space-y-4">
               <h2 className="text-sm font-semibold flex items-center gap-2">
                 <Send className="h-4 w-4 text-primary" /> Telegram Bot
@@ -213,6 +215,7 @@ const Settings = () => {
                 Send test message
               </Button>
             </Card>
+            </TierGate>
 
             {/* Alert Thresholds */}
             <Card className="p-4 space-y-4">
