@@ -3,6 +3,8 @@ import { CompetitiveComparison } from "@/components/saas/CompetitiveComparison";
 import { FeatureValueMatrix } from "@/components/saas/FeatureValueMatrix";
 import { PackagingTiers } from "@/components/saas/PackagingTiers";
 import { EnterpriseTrustPanel } from "@/components/saas/EnterpriseTrustPanel";
+import { ValueMetricBar } from "@/components/ValueMetricBar";
+import { CompetitivePositionTable } from "@/components/CompetitivePositionTable";
 import { featureValueMatrix, packageTiers } from "@/lib/saas-data";
 
 const WhyProfix = () => (
@@ -14,6 +16,9 @@ const WhyProfix = () => (
           Platform positioning, competitive benchmarks, packaging, and enterprise trust.
         </p>
       </div>
+
+      <ValueMetricBar />
+      <CompetitivePositionTable />
 
       <CompetitiveComparison />
 

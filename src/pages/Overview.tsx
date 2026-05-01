@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DeltaBadge } from "@/components/dashboard/DeltaBadge";
+import { ValueMetricBar } from "@/components/ValueMetricBar";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   TrendingUp, Clock, Sparkles, ArrowRight,
   CheckCircle2, AlertTriangle, Database,
@@ -29,10 +31,12 @@ const topKPIs = [
 
 const Overview = () => {
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   return (
     <AppShell>
       <div className="max-w-5xl mx-auto space-y-5">
+        {role === "direction" && <ValueMetricBar />}
         {/* ── North Star KPI ──────────────────────────────────── */}
         <Card className="p-5 flex items-center justify-between">
           <div>
