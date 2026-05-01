@@ -77,10 +77,10 @@ export const ContextBar = () => {
 
       <span className="text-muted-foreground">·</span>
 
-      {/* Data freshness */}
-      <div className="flex items-center gap-1.5">
-        <Circle className="h-2 w-2 fill-positive text-positive" />
-        <span className="text-muted-foreground">Synced 2h ago</span>
+      {/* Backend status */}
+      <div className="flex items-center gap-1.5" title={backend.version ? `v${backend.version}` : undefined}>
+        <Circle className={`h-2 w-2 ${statusMeta.className}`} />
+        <span className="text-muted-foreground">{statusMeta.label}</span>
       </div>
 
       <div className="ml-auto">
