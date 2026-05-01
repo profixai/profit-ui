@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useProperty, properties } from "@/contexts/PropertyContext";
+import { useBackendStatus } from "@/contexts/BackendStatusContext";
 import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -32,6 +33,14 @@ const granularityLabel: Record<string, string> = {
 export const ContextBar = () => {
   const { role } = useAuth();
   const { propertyId, propertyName, setProperty, period } = useProperty();
+  const backend = useBackendStatus();
+
+  const statusMeta =
+    backend.status === "live"
+      ? { label: "Live", className: "fill-positive text-positive" }
+      : backend.status === "degraded"
+      ? { label: "Degraded", className: "fill-accent text-accent" }
+      : { label: "Offline · Mock", className: "fill-muted-foreground text-muted-foreground" };
 
   const canSwitch = role === "manager" || role === "direction";
 
