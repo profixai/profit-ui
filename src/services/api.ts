@@ -20,7 +20,42 @@ export type KPIMetric = USALIKpi;
 export type PLRow = USALIRow;
 export type { PLResponse };
 
+import { supabase } from "@/integrations/supabase/client";
+
 const BASE = import.meta.env.VITE_API_BASE ?? "";
+const FALLBACK_TENANT = import.meta.env.VITE_TENANT_ID ?? "";
+
+// ─── Tenant / JWT helpers ─────────────────────────────────────
+// Backend RLS uses app.current_tenant_id() from the JWT claim.
+// We attach Authorization: Bearer <token> on all authenticated calls.
+
+interface AuthHeaders {
+  token: string | null;
+  tenantId: string | null;
+}
+
+async function getAuthHeaders(): Promise<AuthHeaders> {
+  try {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token ?? null;
+    // Prefer claim from the JWT user metadata; fall back to env var for local dev.
+    const claimTenant =
+      (data.session?.user?.app_metadata as Record<string, unknown> | undefined)?.tenant_id ??
+      (data.session?.user?.user_metadata as Record<string, unknown> | undefined)?.tenant_id ??
+      null;
+    const tenantId = (claimTenant as string | null) ?? (FALLBACK_TENANT || null);
+    if (!tenantId) {
+      console.warn("[api] tenant_id missing — continuing with mock data");
+    }
+    return { token, tenantId };
+  } catch {
+    return { token: null, tenantId: FALLBACK_TENANT || null };
+  }
+}
+
+export async function getTenantId(): Promise<string | null> {
+  return (await getAuthHeaders()).tenantId;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────
 
@@ -51,20 +86,27 @@ function delay<T>(data: T, ms = 300): Promise<APIResponse<T>> {
 /**
  * fetchWithFallback — single helper for all API calls.
  * Tries real fetch when BASE is set; on failure falls back to mock.
+ * Always injects Authorization: Bearer <token> when a session exists.
  */
-async function fetchWithFallback<T>(
+export async function fetchWithFallback<T>(
   path: string,
   mockFactory: () => T,
   init?: RequestInit,
 ): Promise<APIResponse<T>> {
   if (!BASE) return delay(mockFactory());
 
+  const { token } = await getAuthHeaders();
+  const headers = new Headers(init?.headers);
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  if (init?.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
   try {
-    const res = await fetch(`${BASE}${path}`, init);
+    const res = await fetch(`${BASE}${path}`, { ...init, headers });
     if (!res.ok) {
       const text = await res.text().catch(() => "Unknown error");
       console.warn(`[api] ${path} → ${res.status}: ${text}`);
-      // Graceful fallback to mock
       return delay(mockFactory());
     }
     return res.json();
