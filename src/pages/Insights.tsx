@@ -12,9 +12,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useInsights } from "@/hooks/useInsights";
-import { InsightCard } from "@/services/api";
 import { sendTelegramMessage, formatInsightMessage, getTelegramConfig } from "@/services/telegram";
 import { useProperty } from "@/contexts/PropertyContext";
+import { TierGate } from "@/components/TierGate";
+import { InsightCard } from "@/services/api";
 
 type Severity = "critical" | "warning" | "info";
 
@@ -77,6 +78,7 @@ const Insights = () => {
           </Button>
         </div>
 
+        <TierGate requires="team" feature="AI Insights">
         <Tabs value={filter} onValueChange={(v) => setFilter(v as any)}>
           <TabsList>
             <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
@@ -154,6 +156,7 @@ const Insights = () => {
             })
           )}
         </div>
+        </TierGate>
       </div>
     </AppShell>
   );
