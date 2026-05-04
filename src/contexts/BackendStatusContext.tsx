@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { API_BASE } from "@/config/env";
 
 export type BackendStatus = "live" | "degraded" | "offline";
 
