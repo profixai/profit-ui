@@ -21,6 +21,7 @@ export type PLRow = USALIRow;
 export type { PLResponse };
 
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 import { API_BASE as BASE, TENANT_ID_FALLBACK as FALLBACK_TENANT } from "@/config/env";
 
