@@ -23,7 +23,7 @@ export function getTelegramConfig(): TelegramConfig | null {
 export async function sendTelegramMessage(message: string): Promise<boolean> {
   if (API_BASE) {
     try {
-      const res = await fetch(`${BASE}/api/v1/notify/telegram`, {
+      const res = await fetch(`${API_BASE}/api/v1/notify/telegram`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, severity: "info", property_id: "default" }),
