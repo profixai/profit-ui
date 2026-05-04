@@ -23,7 +23,7 @@ const BackendStatusContext = createContext<BackendStatusContextType>({
 });
 
 const POLL_MS = 60_000;
-const BASE = import.meta.env.VITE_API_BASE ?? "";
+const BASE = API_BASE;
 
 export const BackendStatusProvider = ({ children }: { children: ReactNode }) => {
   const [health, setHealth] = useState<BackendHealth>({
