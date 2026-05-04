@@ -102,6 +102,34 @@ export interface PropertySummary {
   anomalies: string[];
 }
 
+// ─── Invoice ingestion (backend: POST /upload/invoices, GET /invoices/{job_id}) ──
+export interface InvoiceUploadResponse {
+  job_id: string;
+  status: string;
+  invoice_count: number;
+  data_vault_key: string;
+  invoice_number: string | null;
+  vendor_id: string | null;
+  s3_raw_key: string;
+}
+
+export interface InvoiceJob {
+  job_id: string;
+  data_vault_key?: string;
+  invoice_number: string | null;
+  vendor_id: string | null;
+  vendor_name: string | null;
+  invoice_date: string | null;
+  currency: string | null;
+  total_amount: number | null;
+  confidence_score: number | null;
+  extractor: string | null;
+  lines_count: number;
+  s3_raw_key: string;
+  s3_processed_key: string | null;
+  status: "queued" | "complete" | "error";
+}
+
 // ─── Auth contract (JWT payload shape) ────────────────────────
 export interface AuthToken {
   sub: string;
