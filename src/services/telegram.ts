@@ -1,5 +1,7 @@
 // ⚠️  CONTRACT-LOCKED — must mirror backend exactly.
-// Uses VITE_API_BASE as the single env var.
+// Env reads consolidated in src/config/env.ts.
+
+import { API_BASE } from "@/config/env";
 
 export interface TelegramConfig {
   botToken: string;
