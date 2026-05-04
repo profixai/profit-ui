@@ -21,8 +21,7 @@ export function getTelegramConfig(): TelegramConfig | null {
 }
 
 export async function sendTelegramMessage(message: string): Promise<boolean> {
-  const BASE = import.meta.env.VITE_API_BASE ?? "";
-  if (BASE) {
+  if (API_BASE) {
     try {
       const res = await fetch(`${BASE}/api/v1/notify/telegram`, {
         method: "POST",
