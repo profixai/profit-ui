@@ -329,3 +329,81 @@ export async function fetchMultiProperty(): Promise<APIResponse<PropertySummary[
     () => mockProperties,
   );
 }
+
+// ─── Invoice ingestion ────────────────────────────────────────
+// Backend canonical routes (DO NOT change paths):
+//   POST  {API_BASE}/upload/invoices    → InvoiceUploadResponse
+//   GET   {API_BASE}/invoices/{job_id}  → InvoiceJob
+
+export function mockInvoiceJobs(): InvoiceJob[] {
+  return [
+    {
+      job_id: "job-001", status: "complete", invoice_number: "INV-2026-001",
+      vendor_id: "v-001", vendor_name: "Laundry Co.", invoice_date: "2026-04-01",
+      total_amount: 1420.0, currency: "EUR", confidence_score: 0.96,
+      extractor: "hybrid", lines_count: 4,
+      s3_raw_key: "mock/job-001/raw.pdf",
+      s3_processed_key: "mock/job-001/processed.json",
+      data_vault_key: "dv/job-001",
+    },
+    {
+      job_id: "job-002", status: "queued", invoice_number: "INV-2026-002",
+      vendor_id: "v-002", vendor_name: "Tech Repairs Ltd", invoice_date: "2026-04-15",
+      total_amount: 890.5, currency: "EUR", confidence_score: null,
+      extractor: null, lines_count: 0,
+      s3_raw_key: "mock/job-002/raw.pdf",
+      s3_processed_key: null,
+      data_vault_key: "dv/job-002",
+    },
+    {
+      job_id: "job-003", status: "error", invoice_number: null,
+      vendor_id: "v-003", vendor_name: "Food Supplies SA", invoice_date: "2026-04-28",
+      total_amount: null, currency: "EUR", confidence_score: 0.41,
+      extractor: "ocr_llm", lines_count: 2,
+      s3_raw_key: "mock/job-003/raw.pdf",
+      s3_processed_key: null,
+      data_vault_key: "dv/job-003",
+    },
+  ];
+}
+
+export async function uploadInvoice(file: File): Promise<APIResponse<InvoiceUploadResponse>> {
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("source", "manual_upload");
+
+  return fetchWithFallback<InvoiceUploadResponse>(
+    "/upload/invoices",
+    () => ({
+      job_id: `job-${Math.random().toString(36).slice(2, 8)}`,
+      status: "queued",
+      invoice_count: 1,
+      data_vault_key: `dv/${file.name}`,
+      invoice_number: null,
+      vendor_id: null,
+      s3_raw_key: `mock/${file.name}`,
+    }),
+    { method: "POST", body: fd },
+  );
+}
+
+export async function getInvoiceJob(jobId: string): Promise<APIResponse<InvoiceJob>> {
+  return fetchWithFallback<InvoiceJob>(
+    `/invoices/${jobId}`,
+    () => {
+      const found = mockInvoiceJobs().find((j) => j.job_id === jobId);
+      if (found) return found;
+      return {
+        job_id: jobId, status: "complete",
+        invoice_number: `INV-${jobId.slice(-4).toUpperCase()}`,
+        vendor_id: "v-mock", vendor_name: "Mock Vendor",
+        invoice_date: new Date().toISOString().slice(0, 10),
+        currency: "EUR", total_amount: 1234.56, confidence_score: 0.92,
+        extractor: "hybrid", lines_count: 3,
+        s3_raw_key: `mock/${jobId}/raw.pdf`,
+        s3_processed_key: `mock/${jobId}/processed.json`,
+        data_vault_key: `dv/${jobId}`,
+      };
+    },
+  );
+}
