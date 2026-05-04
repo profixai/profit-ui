@@ -12,10 +12,12 @@ import type {
   InsightCard,
   InventoryEntry,
   PropertySummary,
+  InvoiceUploadResponse,
+  InvoiceJob,
 } from "@/contracts";
 
 // Re-export types so existing imports from "@/services/api" keep working
-export type { APIResponse, InsightCard, InventoryEntry, PropertySummary };
+export type { APIResponse, InsightCard, InventoryEntry, PropertySummary, InvoiceUploadResponse, InvoiceJob };
 export type KPIMetric = USALIKpi;
 export type PLRow = USALIRow;
 export type { PLResponse };
