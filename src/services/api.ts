@@ -388,8 +388,12 @@ export async function uploadInvoice(file: File): Promise<APIResponse<InvoiceUplo
 }
 
 export async function getInvoiceJob(jobId: string): Promise<APIResponse<InvoiceJob>> {
+  // Backend mounts invoices.router under prefix="/upload" in main.py:35,
+  // so the GET endpoint is /upload/invoices/{job_id} — not /invoices/{job_id}.
+  // Without the /upload prefix this returned 404 every poll cycle and silently
+  // fell through to mock data even when the upload itself succeeded.
   return fetchWithFallback<InvoiceJob>(
-    `/invoices/${jobId}`,
+    `/upload/invoices/${jobId}`,
     () => {
       const found = mockInvoiceJobs().find((j) => j.job_id === jobId);
       if (found) return found;
