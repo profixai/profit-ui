@@ -117,7 +117,7 @@ export async function fetchWithFallback<T>(
   } else {
     console.warn(`[api] tenant_id missing for ${path} — continuing without X-Tenant-ID`);
   }
-  if (init?.body && !headers.has("Content-Type")) {
+  if (init?.body && !headers.has("Content-Type") && !(init.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
 
