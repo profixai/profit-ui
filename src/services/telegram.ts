@@ -1,5 +1,7 @@
 // ⚠️  CONTRACT-LOCKED — must mirror backend exactly.
-// Uses VITE_API_BASE as the single env var.
+// Env reads consolidated in src/config/env.ts.
+
+import { API_BASE } from "@/config/env";
 
 export interface TelegramConfig {
   botToken: string;
@@ -19,10 +21,9 @@ export function getTelegramConfig(): TelegramConfig | null {
 }
 
 export async function sendTelegramMessage(message: string): Promise<boolean> {
-  const BASE = import.meta.env.VITE_API_BASE ?? "";
-  if (BASE) {
+  if (API_BASE) {
     try {
-      const res = await fetch(`${BASE}/api/v1/notify/telegram`, {
+      const res = await fetch(`${API_BASE}/api/v1/notify/telegram`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, severity: "info", property_id: "default" }),

@@ -22,8 +22,7 @@ export type { PLResponse };
 
 import { supabase } from "@/integrations/supabase/client";
 
-const BASE = import.meta.env.VITE_API_BASE ?? "";
-const FALLBACK_TENANT = import.meta.env.VITE_TENANT_ID ?? "";
+import { API_BASE as BASE, TENANT_ID_FALLBACK as FALLBACK_TENANT } from "@/config/env";
 
 // ─── Tenant / JWT helpers ─────────────────────────────────────
 // Backend RLS uses app.current_tenant_id() from the JWT claim.
