@@ -21,6 +21,7 @@ export type PLRow = USALIRow;
 export type { PLResponse };
 
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 import { API_BASE as BASE, TENANT_ID_FALLBACK as FALLBACK_TENANT } from "@/config/env";
 
@@ -94,15 +95,52 @@ export async function fetchWithFallback<T>(
 ): Promise<APIResponse<T>> {
   if (!BASE) return delay(mockFactory());
 
-  const { token } = await getAuthHeaders();
+  // Resolve session + tenant before every fetch
+  let token: string | null = null;
+  let tenantId: string | null = FALLBACK_TENANT || null;
+  try {
+    const { data } = await supabase.auth.getSession();
+    token = data.session?.access_token ?? null;
+    const claimTenant =
+      (data.session?.user?.app_metadata as Record<string, unknown> | undefined)?.tenant_id ??
+      (data.session?.user?.user_metadata as Record<string, unknown> | undefined)?.tenant_id ??
+      null;
+    tenantId = (claimTenant as string | null) ?? (FALLBACK_TENANT || null);
+  } catch {
+    // keep fallbacks
+  }
+
   const headers = new Headers(init?.headers);
   if (token) headers.set("Authorization", `Bearer ${token}`);
+  if (tenantId) {
+    headers.set("X-Tenant-ID", tenantId);
+  } else {
+    console.warn(`[api] tenant_id missing for ${path} — continuing without X-Tenant-ID`);
+  }
   if (init?.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
   try {
     const res = await fetch(`${BASE}${path}`, { ...init, headers });
+
+    if (res.status === 401) {
+      await supabase.auth.signOut();
+      window.location.replace("/login");
+      return {
+        ok: false,
+        data: null,
+        error: "Session expired",
+        request_id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    if (res.status === 403) {
+      toast.error("Access denied — contact your admin");
+      return delay(mockFactory());
+    }
+
     if (!res.ok) {
       const text = await res.text().catch(() => "Unknown error");
       console.warn(`[api] ${path} → ${res.status}: ${text}`);
