@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useProperty, properties } from "@/contexts/PropertyContext";
+import { useLiveClock } from "@/contexts/LiveClockContext";
 import { useBackendStatus } from "@/contexts/BackendStatusContext";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -34,6 +35,8 @@ export const ContextBar = () => {
   const { role } = useAuth();
   const { propertyId, propertyName, setProperty, period } = useProperty();
   const backend = useBackendStatus();
+  const { hour, minute } = useLiveClock();
+  const timeStr = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 
   const statusMeta =
     backend.status === "live"
@@ -83,12 +86,13 @@ export const ContextBar = () => {
         <span className="text-muted-foreground">{statusMeta.label}</span>
       </div>
 
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-3">
         {role && (
           <Badge variant="outline" className={`text-[10px] ${roleBadgeClass[role] || ""}`}>
             {roleLabel[role] || role}
           </Badge>
         )}
+        <span className="font-mono-data text-[11px] text-muted-foreground tabular-nums">{timeStr}</span>
       </div>
     </div>
   );
