@@ -123,6 +123,12 @@ const Insights = () => {
                   <div className="flex items-start gap-3">
                     <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${cfg.color}`} />
                     <div className="flex-1 space-y-2">
+                      <ScenarioImageCard
+                        scenario={departmentToScenario(insight.department)}
+                        headline={insight.title}
+                        subtext={insight.department}
+                        size="sm"
+                      />
                       <div className="flex items-center gap-2 flex-wrap">
                         <Badge variant="outline" className={`text-[10px] capitalize ${cfg.color}`}>
                           {insight.severity}
