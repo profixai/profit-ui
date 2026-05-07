@@ -16,7 +16,12 @@ export const KPICard = ({ label, value, delta, index, active, onClick }: KPICard
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: index * 0.04, duration: 0.3 }}
     onClick={onClick}
-    className={`bg-card rounded-lg border p-4 text-left transition-all cursor-pointer ${
+    onMouseDown={(e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      e.currentTarget.style.setProperty("--ripple-x", `${e.clientX - r.left}px`);
+      e.currentTarget.style.setProperty("--ripple-y", `${e.clientY - r.top}px`);
+    }}
+    className={`ripple-target card-lift bg-card rounded-lg border p-4 text-left cursor-pointer ${
       active ? "ring-1 ring-primary/20 shadow-sm" : "hover:border-primary/15"
     }`}
   >
