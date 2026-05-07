@@ -16,6 +16,16 @@ import { sendTelegramMessage, formatInsightMessage, getTelegramConfig } from "@/
 import { useProperty } from "@/contexts/PropertyContext";
 import { TierGate } from "@/components/TierGate";
 import { InsightCard } from "@/services/api";
+import { ScenarioImageCard, Scenario } from "@/components/ScenarioImageCard";
+
+const departmentToScenario = (dept: string): Scenario => {
+  const d = dept.toLowerCase();
+  if (d.includes("maint")) return "maintenance";
+  if (d.includes("f&b") || d.includes("food") || d.includes("beverage")) return "f&b";
+  if (d.includes("house") || d.includes("room")) return "housekeeping";
+  if (d.includes("revenue") || d.includes("financ")) return "revenue";
+  return "finance";
+};
 
 type Severity = "critical" | "warning" | "info";
 
