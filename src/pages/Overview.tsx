@@ -5,7 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DeltaBadge } from "@/components/dashboard/DeltaBadge";
 import { ValueMetricBar } from "@/components/ValueMetricBar";
+import { HoverInsight } from "@/components/HoverInsight";
+import { ScenarioImageCard, Scenario } from "@/components/ScenarioImageCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLiveClock } from "@/contexts/LiveClockContext";
+import { getNudge } from "@/lib/nudges";
 import {
   TrendingUp, Clock, Sparkles, ArrowRight,
   CheckCircle2, AlertTriangle, Database,
