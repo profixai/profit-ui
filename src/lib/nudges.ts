@@ -131,16 +131,17 @@ export const getNudge = (hour: number, dayOfWeek: number): Nudge => {
   const dayRule = dayRules[dayOfWeek];
 
   if (hourRule && dayRule) {
+    const h = hourRule.nudge;
     return {
       icon: dayRule.icon,
       headline: dayRule.headline,
-      subtext: hourRule.headline,
-      action: dayRule.action ?? hourRule.action,
-      actionRoute: dayRule.actionRoute ?? hourRule.actionRoute,
+      subtext: h.headline,
+      action: dayRule.action ?? h.action,
+      actionRoute: dayRule.actionRoute ?? h.actionRoute,
       severity:
-        dayRule.severity === "warning" || hourRule.severity === "warning"
+        dayRule.severity === "warning" || h.severity === "warning"
           ? "warning"
-          : dayRule.severity === "opportunity" || hourRule.severity === "opportunity"
+          : dayRule.severity === "opportunity" || h.severity === "opportunity"
           ? "opportunity"
           : "info",
     };
