@@ -13,6 +13,8 @@ import { QuickActionsCard } from "@/components/dashboard/QuickActionsCard";
 import { ThisMonthMetricsCard } from "@/components/dashboard/ThisMonthMetricsCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProperty } from "@/contexts/PropertyContext";
+import { useLiveClock } from "@/contexts/LiveClockContext";
+import { HoverInsight } from "@/components/HoverInsight";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -148,6 +150,22 @@ const DirectionDashboard = () => {
   );
 };
 
+const dayFormatter = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" });
+
+const DashboardHeader = () => {
+  const { dayOfWeek } = useLiveClock();
+  void dayOfWeek;
+  const label = dayFormatter.format(new Date());
+  return (
+    <div>
+      <h1 className="text-base font-semibold text-foreground">Dashboard · {label}</h1>
+      <p className="text-[11px] text-muted-foreground mt-0.5">
+        Jan – Dec 2024 · Uploaded from f5.tables.xlsx
+      </p>
+    </div>
+  );
+};
+
 const ManagerDashboard = () => {
   const [activeAI, setActiveAI] = useState<string | null>(null);
 
@@ -157,12 +175,7 @@ const ManagerDashboard = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-4 py-1">
-      <div>
-        <h1 className="text-base font-semibold text-foreground">P&L Dashboard</h1>
-        <p className="text-[11px] text-muted-foreground mt-0.5">
-          Jan – Dec 2024 · Uploaded from f5.tables.xlsx
-        </p>
-      </div>
+      <DashboardHeader />
 
       <HeadlineRow
         period="Q4 2024"
@@ -175,14 +188,16 @@ const ManagerDashboard = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {kpiCards.map((kpi, i) => (
           <div key={kpi.key}>
-            <KPICard
-              label={kpi.label}
-              value={kpi.value}
-              delta={kpi.delta}
-              index={i}
-              active={activeAI === kpi.key}
-              onClick={() => toggleAI(kpi.key)}
-            />
+            <HoverInsight kpiKey={kpi.label} currentValue={kpi.delta} previousValue={0}>
+              <KPICard
+                label={kpi.label}
+                value={kpi.value}
+                delta={kpi.delta}
+                index={i}
+                active={activeAI === kpi.key}
+                onClick={() => toggleAI(kpi.key)}
+              />
+            </HoverInsight>
             <InlineAIRow
               visible={activeAI === kpi.key}
               content={mockAIResponses[kpi.key] || ""}

@@ -1,0 +1,39 @@
+/* Click ripple, hover lift, and active nav glow micro-interactions */
+
+.ripple-target {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-target::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--ripple-x, 50%) var(--ripple-y, 50%),
+    rgba(184, 169, 232, 0.18) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.ripple-target:active::after {
+  opacity: 1;
+  transition: opacity 0s;
+}
+
+.card-lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.nav-active-glow {
+  box-shadow: 0 0 0 2px #b8a9e8;
+  border-radius: 6px;
+}

@@ -8,6 +8,7 @@ import { AuthProvider, useAuth, saveLastRoute } from "@/contexts/AuthContext";
 import { PropertyProvider } from "@/contexts/PropertyContext";
 import { BackendStatusProvider } from "@/contexts/BackendStatusContext";
 import { TierProvider } from "@/contexts/TierContext";
+import { LiveClockProvider } from "@/contexts/LiveClockContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Insights from "./pages/Insights";
@@ -46,6 +47,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        <LiveClockProvider>
         <BackendStatusProvider>
         <TierProvider initial="team">
         <PropertyProvider>
@@ -74,6 +76,7 @@ const App = () => (
         </PropertyProvider>
         </TierProvider>
         </BackendStatusProvider>
+        </LiveClockProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

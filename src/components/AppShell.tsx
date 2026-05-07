@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth, UserRole } from "@/contexts/AuthContext";
 import { AskProfixPanel } from "@/components/AskProfixPanel";
 import { ContextBar } from "@/components/ContextBar";
+import { ContextualNudgeBar } from "@/components/ContextualNudgeBar";
 import { GeoBg } from "@/components/GeoBg";
 import { Button } from "@/components/ui/button";
 import {
@@ -100,9 +101,9 @@ export const AppShell = ({ children }: AppShellProps) => {
             <Link
               key={item.url}
               to={item.url}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ripple-target ${
                 isActive(item.url)
-                  ? "bg-primary/15 text-primary"
+                  ? "bg-primary/15 text-primary nav-active-glow"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary"
               }`}
             >
@@ -172,6 +173,7 @@ export const AppShell = ({ children }: AppShellProps) => {
 
       {/* ── Context Bar ─────────────────────────────────────── */}
       <ContextBar />
+      <ContextualNudgeBar />
 
       {/* ── Main Content ────────────────────────────────────── */}
       <main className="flex-1 overflow-auto p-4 lg:p-6 relative z-[1]">

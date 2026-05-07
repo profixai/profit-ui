@@ -1,146 +1,70 @@
+## Sprint: "Make every page feel alive" — 5 Credits
 
+Adds time/context awareness, hover insight depth, scenario imagery, micro-interactions, and a live clock. No new dependencies.
 
-## UI Finalization: Role-Based Workflow Product
+### Credit 1 — ContextualNudgeBar
 
-This plan turns the current "SaaS catalogue" feel into a focused, role-based B2B workflow tool across 5 changes. No backend or data contract changes.
+**New files**
+- `src/lib/nudges.ts` — pure `getNudge(hour, dayOfWeek): Nudge` with 12+ rules (7 hour bands + 4 day rules + compound merge when both match).
+- `src/components/ContextualNudgeBar.tsx` — 40px bar, card `#0f3530` bg, left-border by severity (lavender/amber/teal), CSS fade+slide-in (300ms), session dismiss via `sessionStorage['nudge_dismissed_{hour}_{day}']`.
 
----
+**Wiring**
+- Render inside `AppShell` *only* when `location.pathname` ∈ `/overview /dashboard /pl /insights`. Excludes Data Vault, Settings, /why-profix.
 
-### Change 1: Role-Based UX
+### Credit 2 — HoverInsight on KPI cards
 
-**Map existing roles to the new UX contexts:**
-- `inventory` = Operator (sees: P&L, Insights, Data Upload, Settings)
-- `manager` = Manager (sees: Overview, Dashboard, P&L, Insights, Data Upload, Portfolio, Settings)
-- `direction` = Admin (sees: everything including `/why-profix`)
+**New file**
+- `src/components/HoverInsight.tsx` — wraps children in shadcn `Tooltip` (open 400ms / close 200ms). Popover (200px): Recharts `LineChart` 80×32 with 7 mock points (±5% around `currentValue`, line `#b8a9e8`, no axes/tooltip), delta badge (▲/▼/→), one-line context from `kpiKey` lookup map.
 
-**Files:**
-- `src/components/AppShell.tsx` — Rewrite `navSections` to remove the section-label structure and replace with a flat filtered list. Remove Enterprise nav item for non-direction roles. Add `/why-profix` only for `direction`.
-- `src/App.tsx` — Add route for `/why-profix`. Update `allowedRoles` on `/enterprise` to `["direction"]` only. Update `RootRedirect`: inventory → `/inventory`, manager → `/dashboard`, direction → `/overview`.
+**Wiring**
+- Wrap `KPICard` usages on `Overview.tsx` (top 3 KPIs + North Star) and `Dashboard.tsx`.
+- Role guard via `useAuth().role` — render plain children for `inventory` (Operator); show tooltip for `manager` and `direction`. Click behaviour unchanged.
 
-**No changes to AuthContext or role types** — the three existing roles map directly.
+### Credit 3 — ScenarioImageCard (Unsplash)
 
----
+**New file**
+- `src/components/ScenarioImageCard.tsx` — text renders first, `<img loading="lazy" src="https://source.unsplash.com/400x200/?{kw}">` with CSS opacity fade-in on `onLoad`, `onError` swap to solid `#0f3530` + emoji fallback. Keyword + emoji map per spec, `size: 'sm'|'md'`.
 
-### Change 2: Overview Page Refactor
+**Wiring**
+- `Overview.tsx`: one `md` card between KPI row and the change log; scenario derived from `useLiveClock().hour` (4 bands).
+- `Insights.tsx`: one `sm` card per `InsightCard` (uses `insight.department` mapped to scenario; default `finance`).
 
-**File: `src/pages/Overview.tsx` — Full rewrite**
+### Credit 4 — ClickRipple & micro-interactions
 
-Keep only:
-1. **North Star KPI** — single prominent card (e.g. "GOP Margin: 42.8%") with delta badge
-2. **Top 3 KPI cards** — keep existing `kpiOutcomes` but reduce to 3 operational ones (Time Saved, Anomaly Detection, Cost Variance)
-3. **"What Changed" panel** — keep the existing `changeLog` card as-is
-4. **"Next Best Action" panel** — new Card with a single recommended action (e.g. "Review F&B costs — 2 alerts pending") and a CTA button to navigate to the relevant page
-5. **"Data Status" panel** — new Card showing last sync time, files uploaded this month, pending anomalies
+**New file**
+- `src/styles/interactions.css` — `.ripple-target` (radial gradient via `--ripple-x/y`, opacity transition), `.card-lift` (translateY -2px + shadow on hover), `.nav-active-glow` (lavender ring).
 
-Remove:
-- Hero value statement / tagline
-- "Upgrade to Team" prompt
-- `CompetitiveComparison`
-- `FeatureValueMatrix`
-- `PackagingTiers`
-- All imports for those removed components
+**Wiring**
+- Import once in `src/main.tsx`.
+- `KPICard` className gains `ripple-target card-lift`; on `onMouseDown` set `--ripple-x/y` from event coords.
+- shadcn `Button` base class extended with `ripple-target` (single edit in `button.tsx`).
+- `AppSidebar` / nav tab components: add `ripple-target`; active tab adds `nav-active-glow` (replace or augment current active style — keep existing semantic colour).
+- Excluded: form inputs, table rows.
 
----
+### Credit 5 — LiveClockContext & time-aware headers
 
-### Change 3: Move Sales Content to `/why-profix`
+**New file**
+- `src/contexts/LiveClockContext.tsx` — `LiveClockProvider` + `useLiveClock()`. State: `{ hour, minute, dayOfWeek, timeLabel }`. Single `setInterval(60_000)` updating only when `minute` changes; `useMemo` for `timeLabel` to avoid re-render storm. `timeLabel` bands per spec.
 
-**File: `src/pages/WhyProfix.tsx` — Create new**
+**Wiring**
+- Wrap providers in `App.tsx` (inside `AuthProvider`, outside `BackendStatusProvider`).
+- `Overview.tsx` header → `"{timeLabel}, {firstName}"` where `firstName` comes from `useAuth().user?.display_name?.split(' ')[0] ?? 'Manager'`. Subtitle = `getNudge(...).headline`.
+- `Dashboard.tsx` header → `"Dashboard · {dayName} {date}"` (formatted DD/MM via `Intl.DateTimeFormat('en-GB')`).
+- `ContextBar.tsx` → append `HH:MM` (24h, DM Mono, `text-muted-foreground`) at far right; subscribes to `useLiveClock` so it ticks every 60s without prop drilling.
 
-A dedicated page containing:
-- `CompetitiveComparison`
-- `FeatureValueMatrix` with `featureValueMatrix` data
-- `PackagingTiers` with `packageTiers` data
-- The existing Enterprise trust/governance content from `Enterprise.tsx` (audit metrics, `EnterpriseTrustPanel`)
+### Carry-forward guards (no regressions)
+- Nav remains 4 tabs.
+- All new fetch-shaped code (none here, but Insights/KPI sources unchanged) keeps `APIResponse<T>` envelope.
+- TierGate on Insights/Telegram/Audit unchanged.
+- Tokens: bg `#0b2b27`, card `#0f3530`, accent `#b8a9e8`, DM Sans/Mono — used via existing semantic tokens; no hardcoded hex inside Tailwind classes (only in the new CSS file where ripple gradient needs literal rgba).
 
-Wrapped in `AppShell`. Only accessible to `direction` role.
+### Definition of Done
+- Nudge bar shows on the 4 listed routes, dismiss persists per session, no flash on reload (read sessionStorage during initial state).
+- Hover tooltip with sparkline + delta + context on KPI cards for Manager/Admin only.
+- Scenario card on Overview (time-driven) and one per Insights card; emoji fallback on image error.
+- Ripple + lift on KPI cards and buttons; active nav tab glows.
+- Live clock updates every 60s; Overview/Dashboard headers and Context Bar reflect it.
+- `tsc --noEmit` clean, `vite build` clean, no new warnings.
 
-**File: `src/pages/Enterprise.tsx`** — Simplify to just governance controls (audit metrics, security score). Remove `CompetitiveComparison` and `PackagingTiers` from this page. Keep `EnterpriseTrustPanel`.
-
-**File: `src/components/AppShell.tsx`** — Add "Why Profix" nav item for `direction` only.
-
-**File: `src/App.tsx`** — Add `<Route path="/why-profix">` with `allowedRoles={["direction"]}`.
-
----
-
-### Change 4: Error Handling UI Components
-
-**File: `src/components/ui/states.tsx` — Create new**
-
-Four reusable components:
-
-```text
-LoadingState  — Skeleton grid + "Loading..." text
-EmptyState    — Icon + message + action button (e.g. "Upload data")
-ErrorState    — AlertTriangle icon + human message + Retry button (onRetry callback)
-DisconnectedState — WifiOff icon + "Connection lost" + Retry
-```
-
-All use existing Card, Button, Badge from the design system.
-
-**Apply to pages:**
-- `src/pages/ProfitLoss.tsx` — Wrap loading skeleton with `LoadingState`, add `ErrorState` when `usePL` fails, add `EmptyState` when data is null/empty after load
-- `src/pages/Insights.tsx` — Same pattern with `useInsights`
-- `src/pages/MultiProperty.tsx` — Same pattern with `useMultiProperty`
-- `src/pages/DataVault.tsx` — Add `EmptyState` when no files exist ("Upload your first P&L file to get started")
-
-**Update hooks** (`usePL`, `useInsights`, `useMultiProperty`) to expose an `error` field if not already present, by catching fetch errors.
-
----
-
-### Change 5: Global Context Bar
-
-**File: `src/components/ContextBar.tsx` — Create new**
-
-A sticky bar (height ~36px) rendered below the header in `AppShell`, containing:
-- **Property selector** (Select dropdown, default "Le Grand Hôtel") — visible for manager/direction
-- **Reporting period** badge (e.g. "Dec 2024 · Monthly")
-- **Data freshness** indicator (green dot + "Synced 2h ago" or amber + "Stale — 3 days")
-- **Role badge** (already exists in header — move here for prominence)
-
-For `inventory` role: show only property name (read-only) + role badge.
-
-**File: `src/contexts/PropertyContext.tsx` — Create new**
-
-```typescript
-interface PropertyContextType {
-  propertyId: string;
-  propertyName: string;
-  setProperty: (id: string, name: string) => void;
-  period: { year: number; month: string; granularity: "daily" | "monthly" | "ytd" };
-  setPeriod: (p: ...) => void;
-}
-```
-
-Wrap in `App.tsx` inside `AuthProvider`. All pages that currently have local property/period selectors (ProfitLoss, Dashboard, MultiProperty) will read from this shared context instead of local state.
-
-**File: `src/components/AppShell.tsx`** — Render `<ContextBar />` between `<header>` and `<main>`.
-
-**File: `src/pages/ProfitLoss.tsx`** — Remove local property/year/month/period state. Read from `PropertyContext`. Keep the sticky filter bar but remove the property selector (it's now in the context bar). Keep period tabs since they're page-specific overrides.
-
-**File: `src/pages/Dashboard.tsx`** — Remove inline hotel selector from `DirectionDashboard`. Read property from context.
-
----
-
-### Summary of files
-
-| Action | File |
-|--------|------|
-| Create | `src/components/ui/states.tsx` |
-| Create | `src/components/ContextBar.tsx` |
-| Create | `src/contexts/PropertyContext.tsx` |
-| Create | `src/pages/WhyProfix.tsx` |
-| Edit | `src/components/AppShell.tsx` |
-| Edit | `src/App.tsx` |
-| Edit | `src/pages/Overview.tsx` |
-| Edit | `src/pages/Enterprise.tsx` |
-| Edit | `src/pages/ProfitLoss.tsx` |
-| Edit | `src/pages/Dashboard.tsx` |
-| Edit | `src/pages/Insights.tsx` |
-| Edit | `src/pages/MultiProperty.tsx` |
-| Edit | `src/pages/DataVault.tsx` |
-| Edit | `src/hooks/usePL.ts` |
-| Edit | `src/hooks/useInsights.ts` |
-| Edit | `src/hooks/useMultiProperty.ts` |
-
-No backend, data contract, or styling system changes.
-
+### Out of scope
+- No new npm packages, no Framer Motion, no backend/contract changes, no auth/RLS changes, no DataVault edits.

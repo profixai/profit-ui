@@ -16,6 +16,16 @@ import { sendTelegramMessage, formatInsightMessage, getTelegramConfig } from "@/
 import { useProperty } from "@/contexts/PropertyContext";
 import { TierGate } from "@/components/TierGate";
 import { InsightCard } from "@/services/api";
+import { ScenarioImageCard, Scenario } from "@/components/ScenarioImageCard";
+
+const departmentToScenario = (dept: string): Scenario => {
+  const d = dept.toLowerCase();
+  if (d.includes("maint")) return "maintenance";
+  if (d.includes("f&b") || d.includes("food") || d.includes("beverage")) return "f&b";
+  if (d.includes("house") || d.includes("room")) return "housekeeping";
+  if (d.includes("revenue") || d.includes("financ")) return "revenue";
+  return "finance";
+};
 
 type Severity = "critical" | "warning" | "info";
 
@@ -113,6 +123,12 @@ const Insights = () => {
                   <div className="flex items-start gap-3">
                     <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${cfg.color}`} />
                     <div className="flex-1 space-y-2">
+                      <ScenarioImageCard
+                        scenario={departmentToScenario(insight.department)}
+                        headline={insight.title}
+                        subtext={insight.department}
+                        size="sm"
+                      />
                       <div className="flex items-center gap-2 flex-wrap">
                         <Badge variant="outline" className={`text-[10px] capitalize ${cfg.color}`}>
                           {insight.severity}
