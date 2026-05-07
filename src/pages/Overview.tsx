@@ -35,11 +35,28 @@ const topKPIs = [
 
 const Overview = () => {
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { role, user } = useAuth();
+  const { hour, dayOfWeek, timeLabel } = useLiveClock();
+  const firstName = user?.displayName?.split(" ")[0] ?? "Manager";
+  const nudge = getNudge(hour, dayOfWeek);
+  const heroScenario: Scenario =
+    hour >= 6 && hour < 12 ? "morning-ops"
+    : hour >= 12 && hour < 17 ? "revenue"
+    : hour >= 17 && hour < 21 ? "front-desk"
+    : "night-audit";
+  const heroHeadline =
+    heroScenario === "morning-ops" ? "Morning operational window"
+    : heroScenario === "revenue" ? "Afternoon revenue focus"
+    : heroScenario === "front-desk" ? "Check-in and upsell window"
+    : "Night audit and data entry";
 
   return (
     <AppShell>
       <div className="max-w-5xl mx-auto space-y-5">
+        <div>
+          <h1 className="text-base font-semibold text-foreground">{timeLabel}, {firstName}</h1>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{nudge.headline}</p>
+        </div>
         {role === "direction" && <ValueMetricBar />}
         {/* ── North Star KPI ──────────────────────────────────── */}
         <Card className="p-5 flex items-center justify-between">
@@ -61,16 +78,20 @@ const Overview = () => {
         {/* ── Top 3 KPI Cards ─────────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {topKPIs.map((kpi) => (
-            <Card key={kpi.label} className="p-4 space-y-1">
-              <div className="flex items-center gap-2">
-                <kpi.icon className="h-4 w-4 text-primary" />
-                <p className="text-[10px] text-muted-foreground font-medium">{kpi.label}</p>
-              </div>
-              <p className="text-lg font-semibold font-mono-data">{kpi.value}</p>
-              <p className="text-[10px] text-muted-foreground">{kpi.detail}</p>
-            </Card>
+            <HoverInsight key={kpi.label} kpiKey={kpi.label} currentValue={1}>
+              <Card className="p-4 space-y-1 ripple-target card-lift">
+                <div className="flex items-center gap-2">
+                  <kpi.icon className="h-4 w-4 text-primary" />
+                  <p className="text-[10px] text-muted-foreground font-medium">{kpi.label}</p>
+                </div>
+                <p className="text-lg font-semibold font-mono-data">{kpi.value}</p>
+                <p className="text-[10px] text-muted-foreground">{kpi.detail}</p>
+              </Card>
+            </HoverInsight>
           ))}
         </div>
+
+        <ScenarioImageCard scenario={heroScenario} headline={heroHeadline} subtext={nudge.subtext} size="md" />
 
         {/* ── What Changed ──────────────────────────────────────── */}
         <Card className="p-4 space-y-3">
