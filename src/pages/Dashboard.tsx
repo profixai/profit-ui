@@ -150,6 +150,22 @@ const DirectionDashboard = () => {
   );
 };
 
+const dayFormatter = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" });
+
+const DashboardHeader = () => {
+  const { dayOfWeek } = useLiveClock();
+  void dayOfWeek;
+  const label = dayFormatter.format(new Date());
+  return (
+    <div>
+      <h1 className="text-base font-semibold text-foreground">Dashboard · {label}</h1>
+      <p className="text-[11px] text-muted-foreground mt-0.5">
+        Jan – Dec 2024 · Uploaded from f5.tables.xlsx
+      </p>
+    </div>
+  );
+};
+
 const ManagerDashboard = () => {
   const [activeAI, setActiveAI] = useState<string | null>(null);
 
