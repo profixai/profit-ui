@@ -6,6 +6,14 @@ This deploys the FastAPI backend at **`https://api.myprofix.ai`** so the already
 
 ---
 
+## Tag pinning contract (read this first)
+
+This runbook deploys **`v0.1.0-cloudrun`** — the canonical, lockstep release across both repos.
+
+- Backend tag: [`finops-platform-profix v0.1.0-cloudrun`](https://github.com/profixai/finops-platform-profix/releases/tag/v0.1.0-cloudrun) (commit `0ca0667`).
+- Frontend tag: `profit-ui v0.1.0-cloudrun` — applied after first successful joint deploy.
+- **Never** deploy from `main` HEAD. **Never** advance one tag without the other. `v0.1.0-rc2` is superseded; do not use.
+
 ## Architectural facts inferred from the repo
 
 | Concern | Value | Source of truth |
@@ -136,10 +144,11 @@ You are deploying the FastAPI backend `profit-api` from `finops-platform-profix`
 
 ### Block 5 — Build & push the backend image (12 min)
 
-9. From the **repo root** (the directory that contains `backend/`, `agents/`, `data/`, and `requirements.txt`):
+9. From the **repo root** (the directory that contains `backend/`, `agents/`, `data/`, and `requirements.txt`). **Check out the canonical tag first — never deploy from a moving `main`:**
    ```bash
-   GIT_SHA="$(git rev-parse --short HEAD)"
-   IMAGE="europe-west9-docker.pkg.dev/profix-prod/profix/profit-api:${GIT_SHA}"
+   git fetch --tags
+   git checkout v0.1.0-cloudrun           # see release: https://github.com/profixai/finops-platform-profix/releases/tag/v0.1.0-cloudrun
+   IMAGE="europe-west9-docker.pkg.dev/profix-prod/profix/profit-api:v0.1.0-cloudrun"
    gcloud builds submit \
      --tag "$IMAGE" \
      --region=europe-west9 \
@@ -220,11 +229,7 @@ You are deploying the FastAPI backend `profit-api` from `finops-platform-profix`
     - Confirm `POST https://api.myprofix.ai/upload/...` returns 200 and the polling `GET https://api.myprofix.ai/upload/invoices/{job_id}` returns 200 (not 404, not the mock fallback).
     - Confirm a P&L insight renders.
 
-15. Tag the release:
-    ```bash
-    git tag -a "v0.1.0-cloudrun" -m "First Cloud Run deploy of profit-api"
-    git push origin "v0.1.0-cloudrun"
-    ```
+15. **Tag is already created** at `v0.1.0-cloudrun` (see release link above). Do **not** create or move it. Future joint releases (`v0.1.1-cloudrun`, ...) advance both repos in lockstep — never tag one without the other.
 
 ## If something fails (don't retry blindly)
 

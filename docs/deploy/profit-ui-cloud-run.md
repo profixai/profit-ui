@@ -4,6 +4,14 @@ Paste the prompt below into the Claude Code VS Code extension from the **root of
 
 ---
 
+## Tag pinning contract (read this first)
+
+Both repos ship together under one lockstep tag: **`v0.1.0-cloudrun`**.
+
+- Backend release: [`finops-platform-profix v0.1.0-cloudrun`](https://github.com/profixai/finops-platform-profix/releases/tag/v0.1.0-cloudrun) (commit `0ca0667`) — already published.
+- Frontend tag: applied at the end of this runbook after a green smoke test.
+- **Never** deploy from `main` HEAD. **Never** advance one tag without the other. `v0.1.0-rc2` is superseded; do not use.
+
 ## Context for Claude (paste this verbatim)
 
 You are deploying `profit-ui` (Vite SPA, Bun build, Node + serve@14 runtime, port 3000) to Google Cloud Run in region `europe-west9` (Paris).
@@ -54,14 +62,14 @@ Custom domain: `app.myprofix.ai` (DNS managed in Namecheap — we'll add a CNAME
    The frontend service does not need extra IAM beyond the default; secrets/SQL/Vertex are the backend's concern.
 
 5. **Build & push the image with Cloud Build (no local Docker required)**
-   Use a deterministic tag based on the short git SHA so we can pin and roll back:
+   Pin the tag to the lockstep release name; the git SHA goes into `VITE_APP_VERSION` for traceability:
    ```bash
    GIT_SHA=$(git rev-parse --short HEAD)
-   IMAGE="europe-west9-docker.pkg.dev/profix-prod/profix/profit-ui:${GIT_SHA}"
+   IMAGE="europe-west9-docker.pkg.dev/profix-prod/profix/profit-ui:v0.1.0-cloudrun"
    gcloud builds submit \
      --tag "$IMAGE" \
      --region=europe-west9 \
-     --substitutions=_VITE_API_BASE=https://api.myprofix.ai \
+     --substitutions=_VITE_API_BASE=https://api.myprofix.ai,_VITE_APP_VERSION=${GIT_SHA} \
      .
    ```
    If Cloud Build complains about build args not being substituted, fall back to a docker-build-and-push that passes the build arg explicitly:
@@ -110,9 +118,9 @@ Custom domain: `app.myprofix.ai` (DNS managed in Namecheap — we'll add a CNAME
    - TTL: `Automatic`
    Wait 5–15 min for cert provisioning, then `curl -I https://app.myprofix.ai` should return `200` with a Google-managed cert.
 
-9. **Tag the release**
+9. **Tag the release** — only after the smoke test passes and the backend at `https://api.myprofix.ai` is responding 200 on `/health`. The matching backend tag [already exists](https://github.com/profixai/finops-platform-profix/releases/tag/v0.1.0-cloudrun); this command creates the symmetric frontend tag so the two repos are in lockstep:
    ```bash
-   git tag -a "v0.1.0-cloudrun" -m "First Cloud Run deploy of profit-ui"
+   git tag -a "v0.1.0-cloudrun" -m "First Cloud Run deploy of profit-ui — pairs with finops-platform-profix v0.1.0-cloudrun"
    git push origin "v0.1.0-cloudrun"
    ```
 
