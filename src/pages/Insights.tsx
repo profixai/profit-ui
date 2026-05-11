@@ -17,6 +17,8 @@ import { useProperty } from "@/contexts/PropertyContext";
 import { TierGate } from "@/components/TierGate";
 import { InsightCard } from "@/services/api";
 import { ScenarioImageCard, Scenario } from "@/components/ScenarioImageCard";
+import { useScenarios } from "@/hooks/useScenarios";
+import { ScenarioFeedCard } from "@/components/ScenarioFeedCard";
 
 const departmentToScenario = (dept: string): Scenario => {
   const d = dept.toLowerCase();
@@ -42,6 +44,7 @@ const Insights = () => {
   const { propertyId } = useProperty();
 
   const { data: insights, loading, error } = useInsights(propertyId);
+  const { data: scenarios } = useScenarios();
 
   const filtered = useMemo(
     () => {
@@ -89,6 +92,13 @@ const Insights = () => {
         </div>
 
         <TierGate requires="team" feature="AI Insights">
+        {scenarios && scenarios.length > 0 && (
+          <div className="space-y-3">
+            {scenarios.map((s) => (
+              <ScenarioFeedCard key={s.id} scenario={s} />
+            ))}
+          </div>
+        )}
         <Tabs value={filter} onValueChange={(v) => setFilter(v as any)}>
           <TabsList>
             <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
