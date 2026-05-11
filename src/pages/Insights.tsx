@@ -92,6 +92,13 @@ const Insights = () => {
         </div>
 
         <TierGate requires="team" feature="AI Insights">
+        {scenarios && scenarios.length > 0 && (
+          <div className="space-y-3">
+            {scenarios.map((s) => (
+              <ScenarioFeedCard key={s.id} scenario={s} />
+            ))}
+          </div>
+        )}
         <Tabs value={filter} onValueChange={(v) => setFilter(v as any)}>
           <TabsList>
             <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
