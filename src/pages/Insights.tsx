@@ -17,6 +17,8 @@ import { useProperty } from "@/contexts/PropertyContext";
 import { TierGate } from "@/components/TierGate";
 import { InsightCard } from "@/services/api";
 import { ScenarioImageCard, Scenario } from "@/components/ScenarioImageCard";
+import { useScenarios } from "@/hooks/useScenarios";
+import { ScenarioFeedCard } from "@/components/ScenarioFeedCard";
 
 const departmentToScenario = (dept: string): Scenario => {
   const d = dept.toLowerCase();
