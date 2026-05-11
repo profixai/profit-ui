@@ -1,0 +1,22 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - --build-arg
+      - VITE_API_BASE=https://api.myprofix.ai
+      - --build-arg
+      - VITE_APP_VERSION=9242c47
+      - --build-arg
+      - VITE_SITE_URL=https://app.myprofix.ai
+      - --build-arg
+      - VITE_SUPABASE_URL=https://kfecagfudubkmznxhknf.supabase.co
+      - --build-arg
+      - VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmZWNhZ2Z1ZHVia216bnhoa25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NDM5MjMsImV4cCI6MjA5MjQxOTkyM30._aZ0n2i2MaCrsYmb4T5C3rxfOUan6o_13H2JXgncwW0
+      - -t
+      - europe-west9-docker.pkg.dev/profix-prod/profix/profit-ui:v0.1.0-cloudrun
+      - .
+images:
+  - europe-west9-docker.pkg.dev/profix-prod/profix/profit-ui:v0.1.0-cloudrun
+options:
+  machineType: E2_HIGHCPU_8
+  logging: LEGACY
