@@ -44,6 +44,7 @@ const Insights = () => {
   const { propertyId } = useProperty();
 
   const { data: insights, loading, error } = useInsights(propertyId);
+  const { data: scenarios } = useScenarios();
 
   const filtered = useMemo(
     () => {
