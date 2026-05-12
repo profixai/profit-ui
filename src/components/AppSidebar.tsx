@@ -7,6 +7,15 @@ import {
   ClipboardList,
   Settings,
   LogOut,
+  Compass,
+  Leaf,
+  Hammer,
+  Grid3x3,
+  Briefcase,
+  HelpCircle,
+  BookOpen,
+  FileText,
+  Map,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth, UserRole } from "@/contexts/AuthContext";
@@ -16,6 +25,7 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -32,15 +42,32 @@ interface NavItem {
   roles: UserRole[];
 }
 
-const navItems: NavItem[] = [
+// Issue #22 — exactly 6 MVP items, in this order.
+const mvpNav: NavItem[] = [
+  { title: "Overview", url: "/overview", icon: Compass, roles: ["manager", "direction"] },
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["manager", "direction"] },
   { title: "P&L", url: "/pl", icon: BarChart2, roles: ["manager", "direction"] },
-  { title: "AI Insights", url: "/insights", icon: Sparkles, roles: ["manager", "direction"] },
-  { title: "Stock Entry", url: "/inventory", icon: ClipboardList, roles: ["inventory"] },
-  { title: "Data Upload", url: "/data", icon: Upload, roles: ["manager", "inventory"] },
-  { title: "Portfolio View", url: "/multi-property", icon: Building2, roles: ["manager", "direction"] },
+  { title: "Insights", url: "/insights", icon: Sparkles, roles: ["manager", "direction"] },
+  { title: "Data Vault", url: "/data", icon: Upload, roles: ["manager", "inventory"] },
   { title: "Settings", url: "/settings", icon: Settings, roles: ["manager", "direction", "inventory"] },
 ];
+
+// Hidden behind VITE_FEATURE_LAB=true. Routes still exist in App.tsx; only the
+// sidebar entries are gated. ProtectedRoute role checks apply regardless.
+const labNav: NavItem[] = [
+  { title: "Inventory", url: "/inventory", icon: ClipboardList, roles: ["inventory"] },
+  { title: "Multi-Property", url: "/multi-property", icon: Building2, roles: ["manager", "direction"] },
+  { title: "ESG Barometer", url: "/esg", icon: Leaf, roles: ["manager", "direction"] },
+  { title: "CAPEX Roadmap", url: "/capex", icon: Hammer, roles: ["manager", "direction"] },
+  { title: "Materiality Matrix", url: "/materiality", icon: Grid3x3, roles: ["direction"] },
+  { title: "Enterprise", url: "/enterprise", icon: Briefcase, roles: ["direction"] },
+  { title: "Why Profix", url: "/why-profix", icon: HelpCircle, roles: ["direction"] },
+  { title: "Ledger", url: "/ledger", icon: BookOpen, roles: ["manager", "direction"] },
+  { title: "Reporting", url: "/reporting", icon: FileText, roles: ["manager", "direction"] },
+  { title: "Roadmap", url: "/roadmap", icon: Map, roles: ["manager", "direction"] },
+];
+
+const SHOW_LAB_ROUTES = import.meta.env.VITE_FEATURE_LAB === "true";
 
 const roleLabel: Record<UserRole, string> = {
   direction: "Direction",
@@ -60,12 +87,29 @@ export function AppSidebar() {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
 
-  const filteredNav = navItems.filter((item) => role && item.roles.includes(role));
+  const filteredMvp = mvpNav.filter((item) => role && item.roles.includes(role));
+  const filteredLab = labNav.filter((item) => role && item.roles.includes(role));
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
+  const renderItem = (item: NavItem) => (
+    <SidebarMenuItem key={item.title}>
+      <SidebarMenuButton asChild>
+        <NavLink
+          to={item.url}
+          end
+          className="hover:bg-sidebar-accent/50"
+          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+        >
+          <item.icon className="mr-2 h-4 w-4" />
+          {!collapsed && <span>{item.title}</span>}
+        </NavLink>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
 
   return (
     <Sidebar collapsible="icon">
@@ -83,25 +127,18 @@ export function AppSidebar() {
       <SidebarContent className="pt-4">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {filteredNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end
-                      className="hover:bg-sidebar-accent/50"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SidebarMenu>{filteredMvp.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {SHOW_LAB_ROUTES && filteredLab.length > 0 && (
+          <SidebarGroup>
+            {!collapsed && <SidebarGroupLabel>Coming soon</SidebarGroupLabel>}
+            <SidebarGroupContent>
+              <SidebarMenu>{filteredLab.map(renderItem)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-3 space-y-2">
