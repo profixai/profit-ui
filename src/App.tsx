@@ -20,6 +20,7 @@ import Overview from "./pages/Overview";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import NotFound from "./pages/NotFound";
 import WhyProfix from "./pages/WhyProfix";
+import Benchmark from "./pages/Benchmark";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,8 @@ const App = () => (
               {/* Invoice approval (mock data, v0 design) — reachable by URL, not in main nav */}
               <Route path="/invoices" element={<Navigate to="/invoices/INV-2024-001" replace />} />
               <Route path="/invoices/:id" element={<ProtectedRoute allowedRoles={["manager", "direction"]}><InvoiceDetail /></ProtectedRoute>} />
+              {/* Public benchmark tool — no auth required */}
+              <Route path="/benchmark" element={<Benchmark />} />
               {/* Non-MVP routes removed from navigation but kept as catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
