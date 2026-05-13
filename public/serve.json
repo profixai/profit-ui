@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/benchmark", "destination": "/benchmark.html" }
+  ],
+  "trailingSlash": false
+}
