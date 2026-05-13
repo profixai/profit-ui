@@ -1,13 +1,8 @@
-import React from "react";
 import { motion } from "framer-motion";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from "recharts";
 import type { DotProps } from "recharts";
-
-interface ActiveDotPayload {
-  payload?: { month?: string };
-}
 
 interface MarginTrendChartProps {
   data: { month: string; gop_margin_pct: number }[];
@@ -82,8 +77,8 @@ export const MarginTrendChart = ({ data, target = 25, active, onClickPoint }: Ma
             stroke: "hsl(218, 47%, 20%)",
             strokeWidth: 2,
             fill: "white",
-            onClick: (_evt: React.MouseEvent, activeDotPayload: ActiveDotPayload) => {
-              if (activeDotPayload?.payload?.month) onClickPoint(activeDotPayload.payload.month);
+            onClick: (props: DotProps & { payload?: { month?: string } }) => {
+              if (props?.payload?.month) onClickPoint(props.payload.month);
             },
           }}
         />

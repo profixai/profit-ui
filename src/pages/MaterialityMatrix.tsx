@@ -8,11 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { mockMaterialityDimensions, type MaterialityDimension } from "@/lib/mock-data";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 
 const formatCurrency = (v: number) => {
   if (v >= 1_000_000) return `€${(v / 1_000_000).toFixed(1)}M`;

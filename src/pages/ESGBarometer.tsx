@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceLine, Area, ComposedChart } from "recharts";
+import { Line, XAxis, YAxis, CartesianGrid, ReferenceLine, Area, ComposedChart } from "recharts";
 import { Leaf, Zap, Droplets, Trash2, ChevronDown, ArrowRight, AlertTriangle, Info, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AskProfixPanel } from "@/components/AskProfixPanel";
