@@ -13,6 +13,7 @@ const ZOOMS = [0.75, 1, 1.25, 1.5];
 
 export function InvoiceViewer({ src, alt = "Invoice document" }: Props) {
   const [zoomIdx, setZoomIdx] = useState(1);
+  const [errored, setErrored] = useState(false);
   const zoom = ZOOMS[zoomIdx];
 
   return (
