@@ -71,15 +71,6 @@ function ok<T>(data: T): APIResponse<T> {
   };
 }
 
-function err<T>(message: string): APIResponse<T> {
-  return {
-    ok: false,
-    data: null,
-    error: message,
-    request_id: crypto.randomUUID(),
-    timestamp: new Date().toISOString(),
-  };
-}
 
 function delay<T>(data: T, ms = 300): Promise<APIResponse<T>> {
   return new Promise((resolve) => setTimeout(() => resolve(ok(data)), ms));
