@@ -28,15 +28,15 @@ const keywordMap: Record<Scenario, string> = {
   finance: "spreadsheet+office",
 };
 
-const emojiMap: Record<Scenario, string> = {
-  "morning-ops": "☀️",
-  revenue: "📈",
-  maintenance: "🔧",
-  "f&b": "🍽️",
-  housekeeping: "🛏️",
-  "front-desk": "🏨",
-  "night-audit": "🌙",
-  finance: "📊",
+const keywordMap: Record<Scenario, string> = {
+  "morning-ops": "hotel+lobby+morning",
+  revenue: "hotel+finance+data",
+  maintenance: "hotel+maintenance",
+  "f&b": "restaurant+hotel",
+  housekeeping: "hotel+housekeeping",
+  "front-desk": "hotel+reception",
+  "night-audit": "hotel+night+desk",
+  finance: "spreadsheet+office",
 };
 
 export const ScenarioImageCard = ({
