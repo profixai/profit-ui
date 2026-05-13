@@ -354,12 +354,24 @@ export default function BenchmarkReport({ b, sus, watchouts, opps, onBack }: Pro
               of your real P&L using <strong>USALI categories</strong> — line-by-line, from your own data — so you can
               see exactly where you stand against hotels of your size and where you have room to improve.
             </p>
-            <a href="https://calendly.com/james-myprofix/30min" target="_blank" rel="noopener noreferrer" className="cta-button">
-              Book a 30-minute meeting
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M7 17 17 7M8 7h9v9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </a>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <a href="https://calendly.com/james-myprofix/30min" target="_blank" rel="noopener noreferrer" className="cta-button">
+                Book a 30-minute meeting
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M7 17 17 7M8 7h9v9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+              <a href="https://www.myprofix.ai/" target="_blank" rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '8px',
+                  border: '1.5px solid rgba(184,169,232,0.5)', color: 'rgba(250,250,247,0.9)',
+                  padding: '16px 28px', borderRadius: '12px', textDecoration: 'none',
+                  fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: '16px',
+                  transition: 'all 0.2s',
+                }}>
+                Learn more about Profix →
+              </a>
+            </div>
             <p className="cta-sub">Free, no commitment. We'll show you how Profix automates P&L building for independent hoteliers.</p>
           </div>
         </div>
