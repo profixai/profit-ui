@@ -41,11 +41,21 @@ const TrendIcon = ({ trend }: { trend: string }) => {
   return <Minus className="h-3 w-3 text-muted-foreground" />;
 };
 
+interface ScatterDotProps {
+  cx?: number;
+  cy?: number;
+  payload?: MaterialityDimension;
+}
+
+interface TooltipPayloadEntry {
+  payload: MaterialityDimension;
+}
+
 // Custom dot for the scatter chart
-const CustomDot = (props: any) => {
+const CustomDot = (props: ScatterDotProps) => {
   const { cx, cy, payload } = props;
-  const size = Math.max(12, Math.min(40, payload.currentCost / 5000));
-  const color = COLORS[payload.id] || "#6B6B6B";
+  const size = Math.max(12, Math.min(40, (payload?.currentCost ?? 0) / 5000));
+  const color = COLORS[payload?.id ?? ""] || "#6B6B6B";
 
   return (
     <g>
@@ -55,7 +65,7 @@ const CustomDot = (props: any) => {
   );
 };
 
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: TooltipPayloadEntry[] }) => {
   if (!active || !payload?.length) return null;
   const d: MaterialityDimension = payload[0].payload;
   return (

@@ -41,7 +41,7 @@ export const FeatureValueMatrix = ({ features }: Props) => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Select value={filterTier} onValueChange={(v) => setFilterTier(v as any)}>
+          <Select value={filterTier} onValueChange={(v) => setFilterTier(v as "all" | Tier)}>
             <SelectTrigger className="w-32 h-8 text-xs">
               <SelectValue placeholder="All Tiers" />
             </SelectTrigger>

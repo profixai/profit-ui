@@ -20,7 +20,7 @@ import { usePL } from "@/hooks/usePL";
 import { PLRow as PLRowType } from "@/services/api";
 import { sendTelegramMessage, formatInsightMessage, getTelegramConfig } from "@/services/telegram";
 import { toast } from "sonner";
-import { useProperty } from "@/contexts/PropertyContext";
+import { useProperty, type Period } from "@/contexts/PropertyContext";
 
 const fmt = (v: number, f: string) => {
   if (f === "pct") return `${v}%`;
@@ -147,7 +147,7 @@ const ProfitLoss = () => {
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur pb-3 pt-1 flex flex-wrap items-center gap-3 border-b">
           <Tabs
             value={period.granularity}
-            onValueChange={(v) => setPeriod({ ...period, granularity: v as any })}
+            onValueChange={(v) => setPeriod({ ...period, granularity: v as Period["granularity"] })}
           >
             <TabsList className="h-8">
               <TabsTrigger value="daily" className="text-xs px-3 h-6">Daily</TabsTrigger>
