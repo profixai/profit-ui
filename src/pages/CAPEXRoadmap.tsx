@@ -6,7 +6,7 @@ import { ExplainButton } from "@/components/ExplainButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, Plus } from "lucide-react";
-import { mockCAPEXActions, type CAPEXAction } from "@/lib/mock-data";
+import { mockCAPEXActions } from "@/lib/mock-data";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 const formatCurrency = (v: number) => {
