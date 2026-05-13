@@ -37,7 +37,10 @@ export const EmptyState = ({
   icon: Icon = Inbox,
 }: EmptyStateProps) => (
   <Card className="flex flex-col items-center justify-center py-12 px-6 text-center">
-    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-3">
+    <div className="h-24 w-32 rounded-lg bg-white flex items-center justify-center mb-3 overflow-hidden">
+      <img src="/placeholder.svg" alt="No data" className="h-full w-full object-contain" />
+    </div>
+    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-2">
       <Icon className="h-5 w-5 text-muted-foreground" />
     </div>
     <h3 className="text-sm font-semibold">{title}</h3>
