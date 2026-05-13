@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      benchmark_leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          region_id: string | null
+          rooms: number | null
+          star_category: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          region_id?: string | null
+          rooms?: number | null
+          star_category?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          region_id?: string | null
+          rooms?: number | null
+          star_category?: string | null
+        }
+        Relationships: []
+      }
       scenarios: {
         Row: {
           actual: number
