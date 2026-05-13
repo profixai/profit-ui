@@ -62,7 +62,7 @@ export default function Benchmark() {
   const header = (
     <header className="site-header">
       <div className="container header-inner">
-        <a href="#" className="logo" aria-label="Profix home">
+        <a href="https://www.myprofix.ai/" target="_blank" rel="noopener noreferrer" className="logo" aria-label="Profix home">
           <img src="/profix-wordmark.svg" alt="Profix" className="logo-img" />
           <span className="logo-divider" />
           <span className="logo-tag">Hotel Benchmark</span>
@@ -217,6 +217,19 @@ export default function Benchmark() {
           </div>
         </section>
 
+        {/* Mini CTA */}
+        <section style={{ background: 'var(--bg-alt)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '40px 0' }}>
+          <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
+            <div>
+              <p style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--foreground)', marginBottom: '4px' }}>Want to know more about Profix?</p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--foreground-soft)' }}>See how we help independent hotels turn benchmarks into live P&L intelligence.</p>
+            </div>
+            <a href="https://www.myprofix.ai/" target="_blank" rel="noopener noreferrer" className="submit-button" style={{ textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              Visit our website →
+            </a>
+          </div>
+        </section>
+
         {/* Footer */}
         <footer id="sources" className="site-footer">
           <div className="container">
@@ -290,6 +303,15 @@ export default function Benchmark() {
               ← Back
             </button>
           </form>
+
+          {/* Mini CTA */}
+          <div style={{ marginTop: '48px', padding: '28px 32px', background: '#ffffff', border: '1px solid var(--border)', borderRadius: '12px', textAlign: 'center' }}>
+            <p style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--foreground)', marginBottom: '6px' }}>Want to know more about Profix?</p>
+            <p style={{ fontSize: '0.875rem', color: 'var(--foreground-soft)', marginBottom: '16px' }}>See how we help independent hotels turn benchmarks into live P&L intelligence.</p>
+            <a href="https://www.myprofix.ai/" target="_blank" rel="noopener noreferrer" className="submit-button" style={{ textDecoration: 'none', margin: '0 auto' }}>
+              Visit our website →
+            </a>
+          </div>
         </div>
       </main>
     </>
