@@ -99,7 +99,7 @@ const Insights = () => {
             ))}
           </div>
         )}
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as any)}>
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as "all" | Severity)}>
           <TabsList>
             <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
             <TabsTrigger value="critical" className="text-xs">Critical</TabsTrigger>

@@ -31,7 +31,7 @@ jobs:
       # Flip to `continue-on-error: false` once `bun run lint` is clean on main.
       - name: Lint
         run: bun run lint
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Build
         run: bun run build

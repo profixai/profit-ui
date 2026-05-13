@@ -82,7 +82,7 @@ const MultiProperty = () => {
                     <TableRow key={kpi.key}>
                       <TableCell className="text-xs font-medium">{kpi.label}</TableCell>
                       {properties.map((prop) => {
-                        const val = (prop as any)[kpi.key] as number;
+                        const val = prop[kpi.key as keyof typeof prop] as number;
                         const onBudget = kpi.key === "gop" ? val >= prop.gopBudget : true;
                         return (
                           <TableCell
