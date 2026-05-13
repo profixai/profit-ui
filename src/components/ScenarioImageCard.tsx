@@ -28,17 +28,6 @@ const keywordMap: Record<Scenario, string> = {
   finance: "spreadsheet+office",
 };
 
-const emojiMap: Record<Scenario, string> = {
-  "morning-ops": "☀️",
-  revenue: "📈",
-  maintenance: "🔧",
-  "f&b": "🍽️",
-  housekeeping: "🛏️",
-  "front-desk": "🏨",
-  "night-audit": "🌙",
-  finance: "📊",
-};
-
 export const ScenarioImageCard = ({
   scenario,
   headline,
@@ -65,9 +54,11 @@ export const ScenarioImageCard = ({
         style={{ height, backgroundColor: "#0f3530" }}
       >
         {errored ? (
-          <span className="text-3xl" aria-hidden>
-            {emojiMap[scenario]}
-          </span>
+          <img
+            src="/placeholder.svg"
+            alt={headline}
+            className="h-full w-full object-contain p-4 opacity-70"
+          />
         ) : (
           <img
             src={url}

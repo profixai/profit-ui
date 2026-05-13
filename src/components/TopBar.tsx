@@ -1,7 +1,7 @@
 import { Bell } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
-import { Badge } from "@/components/ui/badge";
+
 
 export const TopBar = () => {
   const { user } = useAuth();
