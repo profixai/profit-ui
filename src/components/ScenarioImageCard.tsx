@@ -28,17 +28,6 @@ const keywordMap: Record<Scenario, string> = {
   finance: "spreadsheet+office",
 };
 
-const keywordMap: Record<Scenario, string> = {
-  "morning-ops": "hotel+lobby+morning",
-  revenue: "hotel+finance+data",
-  maintenance: "hotel+maintenance",
-  "f&b": "restaurant+hotel",
-  housekeeping: "hotel+housekeeping",
-  "front-desk": "hotel+reception",
-  "night-audit": "hotel+night+desk",
-  finance: "spreadsheet+office",
-};
-
 export const ScenarioImageCard = ({
   scenario,
   headline,
