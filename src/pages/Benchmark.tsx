@@ -304,14 +304,6 @@ export default function Benchmark() {
             </button>
           </form>
 
-          {/* Mini CTA */}
-          <div style={{ marginTop: '48px', padding: '28px 32px', background: '#ffffff', border: '1px solid var(--border)', borderRadius: '12px', textAlign: 'center' }}>
-            <p style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--foreground)', marginBottom: '6px' }}>Want to know more about Profix?</p>
-            <p style={{ fontSize: '0.875rem', color: 'var(--foreground-soft)', marginBottom: '16px' }}>See how we help independent hotels turn benchmarks into live P&L intelligence.</p>
-            <a href="https://www.myprofix.ai/" target="_blank" rel="noopener noreferrer" className="submit-button" style={{ textDecoration: 'none', margin: '0 auto' }}>
-              Visit our website →
-            </a>
-          </div>
         </div>
       </main>
     </>
