@@ -5,7 +5,7 @@ import { AskProfixPanel } from "@/components/AskProfixPanel";
 import { ContextBar } from "@/components/ContextBar";
 import { ContextualNudgeBar } from "@/components/ContextualNudgeBar";
 import { GeoBg } from "@/components/GeoBg";
-import { Button } from "@/components/ui/button";
+
 import {
   LayoutDashboard,
   BarChart2,

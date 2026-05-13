@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { timelineLabel, type WhyThisMattersBlock, type Timeline } from "@/lib/saas-types";
-import { Target, BarChart3, Scale, CheckCircle2, Clock } from "lucide-react";
+import { Target, BarChart3, Scale, CheckCircle2 } from "lucide-react";
 
 interface Props {
   block: WhyThisMattersBlock;
