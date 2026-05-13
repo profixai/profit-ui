@@ -1,13 +1,8 @@
-import React from "react";
 import { motion } from "framer-motion";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from "recharts";
 import type { DotProps } from "recharts";
-
-interface ActiveDotPayload {
-  payload?: { month?: string };
-}
 
 interface MarginTrendChartProps {
   data: { month: string; gop_margin_pct: number }[];
