@@ -53,7 +53,17 @@ export function InvoiceViewer({ src, alt = "Invoice document" }: Props) {
           )}
           style={{ width: `${zoom * 100}%`, maxWidth: 640 }}
         >
-          <img src={src} alt={alt} className="block w-full select-none" draggable={false} />
+          {errored ? (
+            <img src="/placeholder.svg" alt="Failed to load invoice" className="block w-full select-none p-8" />
+          ) : (
+            <img
+              src={src}
+              alt={alt}
+              className="block w-full select-none"
+              draggable={false}
+              onError={() => setErrored(true)}
+            />
+          )}
         </div>
       </CardContent>
     </Card>
