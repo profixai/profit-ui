@@ -1,12 +1,8 @@
 import React from 'react';
 import {
   PieChart, Pie, Cell, Tooltip, Legend,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer,
 } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
-} from '@/components/ui/table';
 import {
   BenchmarkResult,
   SustainabilityResult,
@@ -28,450 +24,355 @@ interface Props {
 
 const PIE_COLORS = ['#02392C', '#6b54b8', '#a8b3ad'];
 
-const riskColors: Record<string, string> = {
-  low: '#16a34a',
-  moderate: '#d97706',
-  high: '#ea580c',
-  very_high: '#dc2626',
-};
-
-const watchoutIconColor = (severity: string): string => {
-  if (severity === 'financial') return '#dc2626';
-  if (severity === 'regional' || severity === 'trend') return '#ea580c';
-  return '#d97706';
-};
-
 export default function BenchmarkReport({ b, sus, watchouts, opps, onBack }: Props) {
   const heroLabel = b.inputs.rooms >= 300
     ? `300+ room ${b.star.name} in ${b.region.name}`
     : `${b.inputs.rooms}-room ${b.star.name} in ${b.region.name}`;
 
-  // Revenue pie data
   const pieData = [
     { name: 'Rooms', value: b.revenue.rooms },
-    { name: 'F&B', value: b.revenue.fb },
+    { name: 'F&B',   value: b.revenue.fb },
     { name: 'Other', value: b.revenue.other },
   ];
 
-  // P&L rows
   const pnlRows = [
-    { label: 'Total Revenue', value: b.pnl.revenue, pct: 1.0, highlight: false, isEbitda: false },
-    { label: 'Suppliers & COGS', value: -b.pnl.suppliers, pct: b.pnl.suppliers / b.pnl.revenue, highlight: false, isEbitda: false },
-    { label: 'Payroll (incl. social charges)', value: -b.pnl.payroll, pct: b.pnl.payroll / b.pnl.revenue, highlight: false, isEbitda: false },
-    { label: 'Energy & Utilities', value: -b.pnl.energy, pct: b.pnl.energy / b.pnl.revenue, highlight: false, isEbitda: false },
-    { label: 'Maintenance & Repairs', value: -b.pnl.maintenance, pct: b.pnl.maintenance / b.pnl.revenue, highlight: false, isEbitda: false },
-    { label: 'Sales & Marketing', value: -b.pnl.sm, pct: b.pnl.sm / b.pnl.revenue, highlight: false, isEbitda: false },
-    { label: 'Admin & General', value: -b.pnl.admin, pct: b.pnl.admin / b.pnl.revenue, highlight: false, isEbitda: false },
-    { label: 'EBITDA', value: b.pnl.ebitda, pct: b.pnl.ebitdaMargin, highlight: true, isEbitda: true },
-    { label: 'EBIT', value: b.pnl.ebit, pct: b.pnl.ebit / b.pnl.revenue, highlight: false, isEbitda: false },
-    { label: 'Net Income', value: b.pnl.netIncome, pct: b.pnl.netIncome / b.pnl.revenue, highlight: false, isEbitda: false },
+    { label: 'Total Revenue',                value: b.pnl.revenue,    pct: 1.0,                               cls: 'pnl-revenue', isCost: false },
+    { label: 'Suppliers / COGS',             value: -b.pnl.suppliers,  pct: b.pnl.suppliers / b.pnl.revenue,  cls: '',            isCost: true },
+    { label: 'Payroll (incl. social charges)',value: -b.pnl.payroll,   pct: b.pnl.payroll / b.pnl.revenue,    cls: '',            isCost: true },
+    { label: 'Energy & Utilities',            value: -b.pnl.energy,    pct: b.pnl.energy / b.pnl.revenue,     cls: '',            isCost: true },
+    { label: 'Maintenance & Repairs',         value: -b.pnl.maintenance,pct: b.pnl.maintenance / b.pnl.revenue,cls: '',            isCost: true },
+    { label: 'Sales & Marketing',             value: -b.pnl.sm,        pct: b.pnl.sm / b.pnl.revenue,         cls: '',            isCost: true },
+    { label: 'Admin & General',               value: -b.pnl.admin,     pct: b.pnl.admin / b.pnl.revenue,      cls: '',            isCost: true },
+    { label: 'EBITDA',                        value: b.pnl.ebitda,     pct: b.pnl.ebitdaMargin,               cls: 'pnl-ebitda',  isCost: false },
+    { label: 'EBIT (Operating Profit)',        value: b.pnl.ebit,       pct: b.pnl.ebit / b.pnl.revenue,       cls: 'pnl-ebit',    isCost: false },
+    { label: 'Net Income (after tax & debt)', value: b.pnl.netIncome,  pct: b.pnl.netIncome / b.pnl.revenue,  cls: 'pnl-net',     isCost: false },
   ];
 
-  // Bar chart data
   const barData = [
-    { name: 'Suppliers', pct: (b.pnl.suppliers / b.pnl.revenue) * 100, isEbitda: false },
-    { name: 'Payroll', pct: (b.pnl.payroll / b.pnl.revenue) * 100, isEbitda: false },
-    { name: 'Energy', pct: (b.pnl.energy / b.pnl.revenue) * 100, isEbitda: false },
+    { name: 'Suppliers',   pct: (b.pnl.suppliers / b.pnl.revenue) * 100,   isEbitda: false },
+    { name: 'Payroll',     pct: (b.pnl.payroll / b.pnl.revenue) * 100,     isEbitda: false },
+    { name: 'Energy',      pct: (b.pnl.energy / b.pnl.revenue) * 100,      isEbitda: false },
     { name: 'Maintenance', pct: (b.pnl.maintenance / b.pnl.revenue) * 100, isEbitda: false },
-    { name: 'S&M', pct: (b.pnl.sm / b.pnl.revenue) * 100, isEbitda: false },
-    { name: 'Admin', pct: (b.pnl.admin / b.pnl.revenue) * 100, isEbitda: false },
-    { name: 'EBITDA', pct: b.pnl.ebitdaMargin * 100, isEbitda: true },
+    { name: 'S&M',         pct: (b.pnl.sm / b.pnl.revenue) * 100,          isEbitda: false },
+    { name: 'Admin',       pct: (b.pnl.admin / b.pnl.revenue) * 100,       isEbitda: false },
+    { name: 'EBITDA',      pct: b.pnl.ebitdaMargin * 100,                  isEbitda: true },
   ];
 
-  const staffItems = [
-    { label: 'Total Staff', value: b.staffing.total },
-    { label: 'F&B', value: b.staffing.fb },
-    { label: 'Housekeeping', value: b.staffing.housekeeping },
-    { label: 'Front Office', value: b.staffing.frontOffice },
-    { label: 'Admin', value: b.staffing.admin },
-    { label: 'Maintenance', value: b.staffing.maintenance },
-  ];
-
-  const regionalStats = [
-    { label: 'Summer Occupancy', value: `${b.region.summer_occ_2025}%` },
-    { label: 'Summer ADR', value: fmtEur(b.region.summer_adr_2025) },
-    { label: 'ALOS', value: `${b.region.alos} nights` },
-    { label: 'Seasonality', value: `${b.region.seasonality_ratio}x` },
-    { label: 'Top Foreign Market', value: `${b.region.top_foreign} (${b.region.top_foreign_share}%)` },
-    { label: 'Domestic Share', value: `${b.region.domestic_share}%` },
-  ];
-
-  const riskColor = riskColors[b.region.risk_profile] || '#d97706';
+  const yoySign = b.region.revpar_yoy >= 0 ? '+' : '';
 
   return (
-    <div>
-      {/* Hero bar */}
-      <div style={{ backgroundColor: '#02392C', color: '#ffffff', padding: '24px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '6px' }}>{heroLabel}</div>
-              <div style={{ fontSize: '0.95rem', opacity: 0.85, maxWidth: '700px' }}>{b.region.trend_note}</div>
-            </div>
-            <button
-              onClick={onBack}
-              style={{
-                background: 'transparent',
-                border: '1px solid #ffffff',
-                color: '#ffffff',
-                padding: '6px 14px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              ← New benchmark
-            </button>
+    <div id="report-section">
+
+      {/* ── Report header ── */}
+      <div className="report-header">
+        <div className="container report-header-inner">
+          <button className="back-button" type="button" onClick={onBack}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M16 10H4m4 4-4-4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            New benchmark
+          </button>
+          <div className="report-title-block">
+            <div className="eyebrow">Benchmark report · 2025 reference data</div>
+            <h1 className="report-title">{heroLabel}</h1>
+            <p className="report-subtitle">{b.region.trend_note}</p>
           </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '24px 16px' }}>
-
-        {/* 4 KPI cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '32px' }}
-          className="sm:grid-cols-4">
-          <Card>
-            <CardHeader style={{ paddingBottom: '4px' }}>
-              <CardTitle style={{ fontSize: '0.875rem', color: '#6b7470', fontWeight: 500 }}>RevPAR</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{fmtEur(b.revpar, 2)}</div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7470', marginTop: '2px' }}>vs national €72.38</div>
-              <div style={{
-                display: 'inline-block',
-                marginTop: '4px',
-                padding: '2px 8px',
-                borderRadius: '999px',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                backgroundColor: b.region.revpar_yoy >= 0 ? '#dcfce7' : '#fee2e2',
-                color: b.region.revpar_yoy >= 0 ? '#16a34a' : '#dc2626',
-              }}>
-                {b.region.revpar_yoy >= 0 ? '+' : ''}{b.region.revpar_yoy.toFixed(1)}% YoY
+      {/* ── KPI cards ── */}
+      <section className="kpi-section">
+        <div className="container">
+          <div className="kpi-grid">
+            <div className="kpi-card">
+              <div className="kpi-label">RevPAR (your benchmark)</div>
+              <div className="kpi-value">{fmtEur(b.revpar, 2)}</div>
+              <div className={`kpi-delta ${b.region.revpar_yoy >= 0 ? 'positive' : 'negative'}`}>
+                {yoySign}{b.region.revpar_yoy.toFixed(1)}% YoY
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader style={{ paddingBottom: '4px' }}>
-              <CardTitle style={{ fontSize: '0.875rem', color: '#6b7470', fontWeight: 500 }}>ADR</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{fmtEur(b.adr, 0)}</div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7470', marginTop: '2px' }}>Average Daily Rate</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader style={{ paddingBottom: '4px' }}>
-              <CardTitle style={{ fontSize: '0.875rem', color: '#6b7470', fontWeight: 500 }}>Occupancy</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{b.occupancy.toFixed(1)}%</div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7470', marginTop: '2px' }}>Estimated occupancy</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader style={{ paddingBottom: '4px' }}>
-              <CardTitle style={{ fontSize: '0.875rem', color: '#6b7470', fontWeight: 500 }}>Annual Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{fmtEur(b.revenue.total)}</div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7470', marginTop: '2px' }}>Estimated total revenue</div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="kpi-card">
+              <div className="kpi-label">ADR (your benchmark)</div>
+              <div className="kpi-value">{fmtEur(b.adr, 0)}</div>
+              <div className="kpi-sub">vs national avg €120</div>
+            </div>
+            <div className="kpi-card">
+              <div className="kpi-label">Occupancy</div>
+              <div className="kpi-value">{b.occupancy.toFixed(1)}%</div>
+              <div className="kpi-sub">vs national 57.9%</div>
+            </div>
+            <div className="kpi-card kpi-card-emphasis">
+              <div className="kpi-label">Estimated annual revenue</div>
+              <div className="kpi-value">{fmtEur(b.revenue.total)}</div>
+              <div className="kpi-sub">all revenue sources</div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* Revenue mix */}
-        <Card style={{ marginBottom: '32px' }}>
-          <CardHeader>
-            <CardTitle>Revenue Mix</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <PieChart width={260} height={260}>
-                  <Pie
-                    data={pieData}
-                    innerRadius="60%"
-                    outerRadius="80%"
-                    dataKey="value"
-                  >
-                    {pieData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: number) => fmtEurExact(value)} />
-                  <Legend />
-                </PieChart>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  { label: 'Rooms', value: b.revenue.rooms, pct: b.star.rooms_revenue_share, color: '#02392C' },
-                  { label: 'F&B', value: b.revenue.fb, pct: b.star.fb_revenue_share, color: '#6b54b8' },
-                  { label: 'Other', value: b.revenue.other, pct: b.star.other_revenue_share, color: '#a8b3ad' },
-                ].map(item => (
-                  <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: item.color, flexShrink: 0 }} />
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontWeight: 600 }}>{item.label}</span>
-                      <span style={{ color: '#6b7470', marginLeft: '8px' }}>{fmtEurExact(item.value)}</span>
-                    </div>
-                    <div style={{ fontSize: '0.875rem', color: '#6b7470', fontWeight: 500 }}>
-                      {fmtPct(item.pct, 0)}
-                    </div>
-                  </div>
-                ))}
+      {/* ── Revenue composition ── */}
+      <section className="report-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Revenue composition</h2>
+            <p className="section-lede">How your total revenue is expected to break down across departments, based on your star category.</p>
+          </div>
+          <div className="two-col">
+            <div className="chart-card">
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={pieData} innerRadius="58%" outerRadius="80%" dataKey="value" paddingAngle={2}>
+                      {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
+                    </Pie>
+                    <Tooltip formatter={(v: number) => fmtEurExact(v)} />
+                    <Legend iconType="circle" iconSize={10} />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* P&L table */}
-        <Card style={{ marginBottom: '32px' }}>
-          <CardHeader>
-            <CardTitle>P&L Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Line Item</TableHead>
-                  <TableHead style={{ textAlign: 'right' }}>Amount</TableHead>
-                  <TableHead style={{ textAlign: 'right' }}>% Revenue</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pnlRows.map(row => (
-                  <TableRow
-                    key={row.label}
-                    style={row.isEbitda ? { backgroundColor: '#f0edfa' } : undefined}
-                  >
-                    <TableCell style={row.isEbitda ? { fontWeight: 700 } : undefined}>
-                      {row.label}
-                    </TableCell>
-                    <TableCell style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                      {fmtEurExact(row.value)}
-                    </TableCell>
-                    <TableCell style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                      {fmtPct(row.pct, 1)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-
-            <div style={{ marginTop: '24px' }}>
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={barData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e6e4dd" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#3d4a47' }} />
-                  <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 11, fill: '#6b7470' }} />
-                  <Tooltip formatter={(v: number) => `${v.toFixed(1)}%`} />
-                  <Bar dataKey="pct" radius={[4, 4, 0, 0]}>
-                    {barData.map((entry, index) => (
-                      <Cell key={`bar-${index}`} fill={entry.isEbitda ? '#6b54b8' : '#a8b3ad'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Staffing */}
-        <Card style={{ marginBottom: '32px' }}>
-          <CardHeader>
-            <CardTitle>Staffing</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div style={{ fontSize: '0.875rem', color: '#6b7470', marginBottom: '16px' }}>
-              Size class: <strong>{b.sizeClass.name}</strong>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
-              {staffItems.map(item => (
-                <div key={item.label} style={{ padding: '12px', backgroundColor: '#f3f4f0', borderRadius: '8px' }}>
-                  <div style={{ fontSize: '0.8rem', color: '#6b7470' }}>{item.label}</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{item.value}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-              <div>
-                <span style={{ color: '#6b7470', fontSize: '0.875rem' }}>Annual labor cost: </span>
-                <strong>{fmtEurExact(b.staffing.laborCostPerYear)}</strong>
-              </div>
-              <div>
-                <span style={{ color: '#6b7470', fontSize: '0.875rem' }}>Avg wage per staff: </span>
-                <strong>{fmtEurExact(b.staffing.wagePerStaffYear)}/yr</strong>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Regional dynamics */}
-        <Card style={{ marginBottom: '32px' }}>
-          <CardHeader>
-            <CardTitle>Regional Dynamics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div style={{
-              borderLeft: '4px solid #02392C',
-              paddingLeft: '16px',
-              marginBottom: '20px',
-              color: '#1a2e29',
-            }}>
-              {b.region.trend_note}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-              {regionalStats.map(item => (
-                <div key={item.label} style={{ padding: '12px', backgroundColor: '#f3f4f0', borderRadius: '8px' }}>
-                  <div style={{ fontSize: '0.8rem', color: '#6b7470' }}>{item.label}</div>
-                  <div style={{ fontSize: '1rem', fontWeight: 600 }}>{item.value}</div>
-                </div>
-              ))}
-              <div style={{ padding: '12px', backgroundColor: '#f3f4f0', borderRadius: '8px' }}>
-                <div style={{ fontSize: '0.8rem', color: '#6b7470' }}>Risk Profile</div>
-                <div style={{
-                  display: 'inline-block',
-                  marginTop: '4px',
-                  padding: '2px 10px',
-                  borderRadius: '999px',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  backgroundColor: riskColor + '22',
-                  color: riskColor,
-                  textTransform: 'capitalize',
-                }}>
-                  {b.region.risk_profile.replace('_', ' ')}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Watch-outs */}
-        <Card style={{ marginBottom: '32px' }}>
-          <CardHeader>
-            <CardTitle>Watch-outs</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {watchouts.map((w, i) => (
-                <li key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                  <span style={{ color: watchoutIconColor(w.severity), fontSize: '1rem', flexShrink: 0, marginTop: '2px' }}>⚠</span>
-                  <span style={{ fontSize: '0.9rem' }}>{w.text}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Opportunities */}
-        <Card style={{ marginBottom: '32px' }}>
-          <CardHeader>
-            <CardTitle>Opportunities</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-              {opps.map((o, i) => (
-                <div key={i} style={{ padding: '16px', backgroundColor: '#f3f4f0', borderRadius: '8px', display: 'flex', gap: '12px' }}>
-                  <div style={{ fontSize: '1.5rem', flexShrink: 0 }}>{o.icon}</div>
-                  <div>
-                    <div style={{ fontWeight: 700, marginBottom: '4px' }}>{o.title}</div>
-                    <p style={{ fontSize: '0.875rem', color: '#3d4a47', margin: 0 }}>{o.text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Sustainability */}
-        <Card style={{ marginBottom: '32px' }}>
-          <CardHeader>
-            <CardTitle>Sustainability Benchmarks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '12px' }}>
+            <div className="rev-breakdown">
               {[
-                { label: 'Energy target', value: `${sus.energyTarget} kWh/m²/yr` },
-                { label: 'Est. energy cost', value: fmtEurExact(sus.energyCostEst) },
-                { label: 'Annual CO₂', value: `${fmtNum(sus.annualCo2, 1)} tCO₂/yr` },
-                { label: 'Annual water', value: `${fmtNum(sus.annualWaterM3)} m³/yr` },
-              ].map(item => (
-                <div key={item.label} style={{ padding: '12px', backgroundColor: '#f3f4f0', borderRadius: '8px' }}>
-                  <div style={{ fontSize: '0.8rem', color: '#6b7470' }}>{item.label}</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{item.value}</div>
+                { label: 'Rooms revenue',                          value: b.revenue.rooms, pct: b.star.rooms_revenue_share },
+                { label: 'Food & Beverage',                        value: b.revenue.fb,    pct: b.star.fb_revenue_share },
+                { label: 'Other (spa, parking, meeting rooms…)',   value: b.revenue.other, pct: b.star.other_revenue_share },
+              ].map(row => (
+                <div key={row.label} className="rev-row">
+                  <div>
+                    <div className="rev-label">{row.label}</div>
+                    <div className="rev-pct">{fmtPct(row.pct, 0)}</div>
+                  </div>
+                  <div className="rev-value">{fmtEurExact(row.value)}</div>
                 </div>
               ))}
             </div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7470' }}>
-              Solar yield for {b.region.name}: <strong>{b.region.solar_yield} kWh/kWp/yr</strong>
+          </div>
+        </div>
+      </section>
+
+      {/* ── P&L ── */}
+      <section className="report-section bg-alt">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Modelled P<span className="amp">&</span>L</h2>
+            <p className="section-lede">Based on Banco de Portugal sector data for your size class: <strong>{b.sizeClass.name}</strong>.</p>
+          </div>
+          <div className="two-col-pnl">
+            <div className="pnl-table-wrap">
+              <table className="pnl-table">
+                <thead>
+                  <tr>
+                    <th>Line item</th>
+                    <th className="num">Annual €</th>
+                    <th className="num">% of revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pnlRows.map(row => (
+                    <tr key={row.label} className={`${row.cls} ${row.isCost ? 'pnl-cost' : ''}`}>
+                      <td>{row.label}</td>
+                      <td className="num">{fmtEurExact(row.value)}</td>
+                      <td className="num pct">{fmtPct(row.pct, 1)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Profix CTA */}
-        <div style={{
-          backgroundColor: '#02392C',
-          color: '#ffffff',
-          padding: '48px 24px',
-          borderRadius: '12px',
-          textAlign: 'center',
-          marginBottom: '32px',
-        }}>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '12px' }}>
-            Ready to close the gap?
-          </div>
-          <div style={{ fontSize: '1rem', opacity: 0.85, maxWidth: '600px', margin: '0 auto 24px' }}>
-            Profix turns these benchmarks into a live FinOps dashboard — P&L tracking, cost alerts, and AI-powered insights tailored to your hotel.
-          </div>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a
-              href="https://calendly.com/james-myprofix/profix-demo"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                backgroundColor: '#ffffff',
-                color: '#02392C',
-                padding: '12px 24px',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                fontWeight: 600,
-                fontSize: '0.95rem',
-              }}
-            >
-              Book a 20-minute demo
-            </a>
-            <a
-              href="https://app.myprofix.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                backgroundColor: 'transparent',
-                border: '1px solid #ffffff',
-                color: '#ffffff',
-                padding: '12px 24px',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                fontWeight: 600,
-                fontSize: '0.95rem',
-              }}
-            >
-              Open Profix →
-            </a>
+            <div className="chart-card">
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={barData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e6e4dd" />
+                    <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#3d4a47', fontFamily: 'DM Sans' }} />
+                    <YAxis tickFormatter={v => `${v}%`} tick={{ fontSize: 11, fill: '#6b7470', fontFamily: 'DM Mono' }} />
+                    <Tooltip formatter={(v: number) => `${v.toFixed(1)}%`} />
+                    <Bar dataKey="pct" radius={[4, 4, 0, 0]}>
+                      {barData.map((entry, i) => (
+                        <Cell key={i} fill={entry.isEbitda ? '#6b54b8' : '#a8b3ad'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="chart-caption">Cost lines and EBITDA margin as % of revenue.</p>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Methodology footer */}
-        <div style={{ textAlign: 'center', fontSize: '0.75rem', color: '#6b7470', paddingBottom: '32px' }}>
-          Data sources: INE/TravelBI, Banco de Portugal QS CAE 55111, DREM Madeira, SREA Açores, Horwath HTL, BEONx, HVS, AHP, JLL, CBRE, HotStats, HOTREC, EU BEMP, Shiji ReviewPro. Portugal Hotel Benchmark Bible v2, May 2026.
+      {/* ── Staffing ── */}
+      <section className="report-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Staffing model</h2>
+            <p className="section-lede">Departmental headcount for a hotel of your size and category, with annual labor cost at 2026 minimum wage rates.</p>
+          </div>
+          <div className="staff-grid">
+            <div className="staff-card staff-card-total">
+              <div className="staff-num">{b.staffing.total}</div>
+              <div className="staff-label">Total FTEs</div>
+            </div>
+            {[
+              { num: b.staffing.fb,          label: 'Food & Beverage' },
+              { num: b.staffing.housekeeping, label: 'Housekeeping' },
+              { num: b.staffing.frontOffice,  label: 'Front Office' },
+              { num: b.staffing.admin,        label: 'Admin & HR' },
+              { num: b.staffing.maintenance,  label: 'Maintenance' },
+            ].map(({ num, label }) => (
+              <div key={label} className="staff-card">
+                <div className="staff-num">{num}</div>
+                <div className="staff-label">{label}</div>
+              </div>
+            ))}
+          </div>
+          <div className="wage-callout">
+            <div>
+              <div className="wage-label">Annual cost per FTE (employer, including TSU)</div>
+              <div className="wage-value">{fmtEurExact(b.staffing.wagePerStaffYear)}</div>
+            </div>
+            <div>
+              <div className="wage-label">Total annual labor cost</div>
+              <div className="wage-value">{fmtEurExact(b.staffing.laborCostPerYear)}</div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* ── Regional dynamics ── */}
+      <section className="report-section bg-alt">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Your regional context</h2>
+            <p className="section-lede">{b.region.trend_note}</p>
+          </div>
+          <div className="region-grid">
+            {[
+              { label: 'Summer 2025 occupancy', value: `${b.region.summer_occ_2025}%` },
+              { label: 'Summer 2025 ADR',       value: fmtEur(b.region.summer_adr_2025) },
+              { label: 'Average length of stay',value: `${b.region.alos} nights` },
+              { label: 'Seasonality (peak vs trough)', value: `${b.region.seasonality_ratio}x` },
+              { label: 'Top foreign market',    value: `${b.region.top_foreign} (${b.region.top_foreign_share}%)` },
+              { label: 'Domestic demand share', value: `${b.region.domestic_share}%` },
+            ].map(({ label, value }) => (
+              <div key={label} className="region-stat">
+                <div className="region-stat-label">{label}</div>
+                <div className="region-stat-value">{value}</div>
+              </div>
+            ))}
+          </div>
+          <div className="risk-callout">
+            <div className="risk-label">Source-market concentration risk</div>
+            <span className={`risk-badge risk-${b.region.risk_profile}`}>
+              {b.region.risk_profile.replace('_', ' ')}
+            </span>
+            <p className="risk-text">Regions with low domestic share and a single dominant foreign market carry higher currency, geopolitical and travel-disruption risk.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Watch-outs ── */}
+      <section className="report-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">What to watch — risks for your profile</h2>
+            <p className="section-lede">Issues that disproportionately affect hotels of your size, category and region in 2025.</p>
+          </div>
+          <ul className="watchouts-list">
+            {watchouts.map((w, i) => (
+              <li key={i} className={`watchout-item watchout-${w.severity}`}>
+                <span className="watchout-icon">⚠</span>
+                <span>{w.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* ── Opportunities ── */}
+      <section className="report-section bg-alt">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Opportunities to capture</h2>
+            <p className="section-lede">Where the 2025 data suggests the highest-leverage moves for your hotel.</p>
+          </div>
+          <div className="opportunities-grid">
+            {opps.map((o, i) => (
+              <div key={i} className="opp-card">
+                <div className="opp-icon">{o.icon}</div>
+                <div>
+                  <h4>{o.title}</h4>
+                  <p>{o.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Sustainability ── */}
+      <section className="report-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Sustainability targets</h2>
+            <p className="section-lede">EU BEMP-aligned benchmarks for a property your size, with Portugal-specific solar potential.</p>
+          </div>
+          <div className="sustainability-grid">
+            <div className="sus-card">
+              <div className="sus-label">Energy intensity target</div>
+              <div className="sus-value">{sus.energyTarget} kWh/m²/yr</div>
+              <div className="sus-detail">Est. annual energy cost: {fmtEurExact(sus.energyCostEst)}</div>
+            </div>
+            <div className="sus-card">
+              <div className="sus-label">Annual CO₂ footprint (scope 2)</div>
+              <div className="sus-value">{fmtNum(sus.annualCo2, 1)} tCO₂/yr</div>
+              <div className="sus-detail">Portugal grid: 80 gCO₂/kWh (89% renewable)</div>
+            </div>
+            <div className="sus-card">
+              <div className="sus-label">Annual water consumption</div>
+              <div className="sus-value">{fmtNum(sus.annualWaterM3)} m³/yr</div>
+              <div className="sus-detail">At ~250 L/guest-night (efficient ops)</div>
+            </div>
+            <div className="sus-card sus-card-highlight">
+              <div className="sus-label">Solar PV yield in your region</div>
+              <div className="sus-value">{b.region.solar_yield} kWh/kWp/yr</div>
+              <div className="sus-detail">Payback typically 4–7 years</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="cta-section">
+        <div className="container">
+          <div className="cta-card">
+            <div className="cta-eyebrow">Built by Profix</div>
+            <h2 className="cta-title">
+              Want a P<span className="amp">&</span>L that <span className="cta-accent">actually</span> reflects your hotel?
+            </h2>
+            <p className="cta-lede">
+              This report uses sector averages. Profix builds AI agents that automate the construction
+              of your real P&L using <strong>USALI categories</strong> — line-by-line, from your own data — so you can
+              see exactly where you stand against hotels of your size and where you have room to improve.
+            </p>
+            <a href="https://calendly.com/james-myprofix/30min" target="_blank" rel="noopener noreferrer" className="cta-button">
+              Book a 30-minute meeting
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M7 17 17 7M8 7h9v9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+            <p className="cta-sub">Free, no commitment. We'll show you how Profix automates P&L building for independent hoteliers.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="site-footer">
+        <div className="container">
+          <p>Built by <strong>Profix</strong> on the Portugal Hotel Benchmark Bible v2 — May 2026.</p>
+          <p className="footer-disclaimer">Benchmarks are reference values. Actual hotel performance varies with location quality, brand, distribution mix and management. Use this report alongside your own management accounts.</p>
+        </div>
+      </footer>
+
     </div>
   );
 }
