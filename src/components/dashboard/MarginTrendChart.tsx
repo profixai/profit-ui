@@ -82,8 +82,8 @@ export const MarginTrendChart = ({ data, target = 25, active, onClickPoint }: Ma
             stroke: "hsl(218, 47%, 20%)",
             strokeWidth: 2,
             fill: "white",
-            onClick: (_evt: React.MouseEvent, activeDotPayload: ActiveDotPayload) => {
-              if (activeDotPayload?.payload?.month) onClickPoint(activeDotPayload.payload.month);
+            onClick: (props: DotProps & { payload?: { month?: string } }) => {
+              if (props?.payload?.month) onClickPoint(props.payload.month);
             },
           }}
         />
