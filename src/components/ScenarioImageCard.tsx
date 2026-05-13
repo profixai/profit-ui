@@ -65,9 +65,11 @@ export const ScenarioImageCard = ({
         style={{ height, backgroundColor: "#0f3530" }}
       >
         {errored ? (
-          <span className="text-3xl" aria-hidden>
-            {emojiMap[scenario]}
-          </span>
+          <img
+            src="/placeholder.svg"
+            alt={headline}
+            className="h-full w-full object-contain p-4 opacity-70"
+          />
         ) : (
           <img
             src={url}
