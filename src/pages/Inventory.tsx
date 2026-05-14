@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRequireRole } from "@/contexts/AuthContext";
 import { useInventory } from "@/hooks/useInventory";
+import { submitInventory, type InventoryEntry } from "@/services/api";
 import { toast } from "sonner";
 import { Check, Save } from "lucide-react";
 
