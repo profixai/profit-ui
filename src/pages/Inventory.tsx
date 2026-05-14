@@ -233,7 +233,7 @@ const Inventory = () => {
         return v && v.amount.trim() !== "" && Number(v.amount) > 0;
       })
       .map((line) => {
-        const trimmedNotes = deptValues[line].notes.trim();
+        const trimmedNotes = normalizeNotesForStorage(deptValues[line].notes);
         return {
           id: `${dept}-${todayISO}-${line.replace(/\s+/g, "-").toLowerCase()}`,
           department: dept,
