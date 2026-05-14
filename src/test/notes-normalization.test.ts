@@ -110,3 +110,35 @@ describe("normalizeNotesInput (typing-time notes normalization)", () => {
     });
   });
 });
+
+import { normalizeNotesForStorage } from "@/pages/Inventory";
+
+describe("normalizeNotesForStorage (persistence-time normalization)", () => {
+  it("trims outer whitespace", () => {
+    expect(normalizeNotesForStorage("   hello world   ")).toBe("hello world");
+  });
+
+  it("collapses internal repeated spaces to a single space", () => {
+    expect(normalizeNotesForStorage("hello   world")).toBe("hello world");
+  });
+
+  it("collapses internal tabs and newlines to a single space", () => {
+    expect(normalizeNotesForStorage("hello\t\tworld\nfoo")).toBe("hello world foo");
+  });
+
+  it("trims and collapses combined", () => {
+    expect(normalizeNotesForStorage("   hello\t\t  world  \n  ")).toBe("hello world");
+  });
+
+  it("collapses whitespace-only input to empty string", () => {
+    expect(normalizeNotesForStorage("   \t\n  ")).toBe("");
+  });
+
+  it("returns empty string unchanged", () => {
+    expect(normalizeNotesForStorage("")).toBe("");
+  });
+
+  it("leaves a clean single-spaced string untouched", () => {
+    expect(normalizeNotesForStorage("hello world")).toBe("hello world");
+  });
+});
