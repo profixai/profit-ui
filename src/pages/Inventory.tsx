@@ -70,6 +70,15 @@ const todayISO = new Date().toISOString().split("T")[0];
  */
 export const normalizeNotesInput = (v: string): string => v.replace(/^\s+|\s+$/g, "");
 
+/**
+ * Normalize a notes value for persistence (autosave, draft save, submit).
+ * - Applies typing-time normalization (trims outer whitespace).
+ * - Collapses any run of internal whitespace into a single ASCII space, so
+ *   server-side data can never contain repeated whitespace.
+ */
+export const normalizeNotesForStorage = (v: string): string =>
+  normalizeNotesInput(v).replace(/\s+/g, " ");
+
 const lineEntrySchema = z.object({
   amount: z
     .string()
