@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalizeNotesInput } from "@/pages/Inventory";
+import { normalizeNotesInput, normalizeNotesForStorage } from "@/pages/Inventory";
 
 describe("normalizeNotesInput (typing-time notes normalization)", () => {
   describe("leading whitespace", () => {
