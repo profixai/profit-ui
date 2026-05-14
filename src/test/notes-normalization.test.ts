@@ -111,7 +111,6 @@ describe("normalizeNotesInput (typing-time notes normalization)", () => {
   });
 });
 
-import { normalizeNotesForStorage } from "@/pages/Inventory";
 
 describe("normalizeNotesForStorage (persistence-time normalization)", () => {
   it("trims outer whitespace", () => {
