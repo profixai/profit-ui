@@ -210,7 +210,7 @@ const Inventory = () => {
     const normalized: LineValues = Object.fromEntries(
       Object.entries(deptValues).map(([line, v]) => [
         line,
-        { amount: v.amount, notes: v.notes.trim() },
+        { amount: v.amount, notes: normalizeNotesForStorage(v.notes) },
       ]),
     );
     setValues((prev) => ({ ...prev, [dept]: normalized }));
