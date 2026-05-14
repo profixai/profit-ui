@@ -199,17 +199,21 @@ const Inventory = () => {
         const v = deptValues[line];
         return v && v.amount.trim() !== "" && Number(v.amount) > 0;
       })
-      .map((line) => ({
-        id: `${dept}-${todayISO}-${line.replace(/\s+/g, "-").toLowerCase()}`,
-        department: dept,
-        category: line,
-        quantity: 1,
-        unit: "lot",
-        value: Number(deptValues[line].amount),
-        date: todayISO,
-        submittedBy: "inventory",
-        status: "submitted",
-      }));
+      .map((line) => {
+        const trimmedNotes = deptValues[line].notes.trim();
+        return {
+          id: `${dept}-${todayISO}-${line.replace(/\s+/g, "-").toLowerCase()}`,
+          department: dept,
+          category: line,
+          quantity: 1,
+          unit: "lot",
+          value: Number(deptValues[line].amount),
+          date: todayISO,
+          submittedBy: "inventory",
+          status: "submitted" as const,
+          ...(trimmedNotes ? { notes: trimmedNotes } : {}),
+        };
+      });
 
     setStatuses((prev) => ({ ...prev, [dept]: "Submitted" }));
     localStorage.setItem(

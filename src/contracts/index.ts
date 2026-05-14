@@ -88,6 +88,7 @@ export interface InventoryEntry {
   date: string;
   submittedBy: string;
   status: "draft" | "submitted";
+  notes?: string;
 }
 
 // ─── Multi-Property ───────────────────────────────────────────
