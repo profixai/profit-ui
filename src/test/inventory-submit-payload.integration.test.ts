@@ -1,6 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { normalizeNotesForStorage } from "@/pages/Inventory";
-import { submitInventory, type InventoryEntry } from "@/services/api";
+
+const API_BASE = "https://test.api.profix.local";
+
+vi.mock("@/config/env", () => ({
+  API_BASE,
+  TENANT_ID_FALLBACK: "test-tenant",
+  IS_MOCK_MODE: false,
+}));
+
+const { normalizeNotesForStorage } = await import("@/pages/Inventory");
+const { submitInventory } = await import("@/services/api");
+type InventoryEntry = import("@/services/api").InventoryEntry;
 
 /**
  * Integration test: the form -> API boundary.
