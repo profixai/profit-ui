@@ -95,7 +95,7 @@ const Login = () => {
 
           <p className="text-center text-sm text-muted-foreground mt-4">
             <button className="text-primary hover:underline font-medium">
-              Request property access
+              Property access
             </button>
           </p>
         </div>
