@@ -1,70 +1,54 @@
-## Sprint: "Make every page feel alive" — 5 Credits
+## Goal
 
-Adds time/context awareness, hover insight depth, scenario imagery, micro-interactions, and a live clock. No new dependencies.
+Add a Playwright smoke test that exercises the Inventory Manager journey across **two different dates** (F&B and Rooms on each day) and asserts that each day's submissions show up correctly in the Recent submissions table.
 
-### Credit 1 — ContextualNudgeBar
+## Context
 
-**New files**
-- `src/lib/nudges.ts` — pure `getNudge(hour, dayOfWeek): Nudge` with 12+ rules (7 hour bands + 4 day rules + compound merge when both match).
-- `src/components/ContextualNudgeBar.tsx` — 40px bar, card `#0f3530` bg, left-border by severity (lavender/amber/teal), CSS fade+slide-in (300ms), session dismiss via `sessionStorage['nudge_dismissed_{hour}_{day}']`.
+- `src/pages/Inventory.tsx` derives the working date from `new Date().toISOString().split("T")[0]` at module load. There is no in-app date picker, so the only way to simulate "another day" in an end-to-end test is to override the browser clock before the page loads.
+- Drafts/submissions are persisted under `pp_inventory_draft_${dept}_${date}` in `localStorage`, and the in-memory `history` state is seeded from `initialHistory` plus any submission performed in the current session.
+- Because `history` is React state (not persisted), submissions made on "Day 1" won't survive a hard reload on "Day 2". The test therefore performs both days in a single page session, switching the simulated clock between them via `page.clock` (Playwright's clock API) so the module-level `todayISO` is recomputed when we navigate between dates.
 
-**Wiring**
-- Render inside `AppShell` *only* when `location.pathname` ∈ `/overview /dashboard /pl /insights`. Excludes Data Vault, Settings, /why-profix.
+## Test design
 
-### Credit 2 — HoverInsight on KPI cards
+File: `tests/inventory-multi-date.spec.ts`
 
-**New file**
-- `src/components/HoverInsight.tsx` — wraps children in shadcn `Tooltip` (open 400ms / close 200ms). Popover (200px): Recharts `LineChart` 80×32 with 7 mock points (±5% around `currentValue`, line `#b8a9e8`, no axes/tooltip), delta badge (▲/▼/→), one-line context from `kpiKey` lookup map.
+Flow inside one `test()`:
 
-**Wiring**
-- Wrap `KPICard` usages on `Overview.tsx` (top 3 KPIs + North Star) and `Dashboard.tsx`.
-- Role guard via `useAuth().role` — render plain children for `inventory` (Operator); show tooltip for `manager` and `direction`. Click behaviour unchanged.
+1. **Setup**
+   - Clear `localStorage` keys for `pp_inventory_draft_{fb,rooms}_{day1,day2}` and `sessionStorage` via `addInitScript`.
+   - Install `page.clock.install({ time: day1 })` before any navigation so `new Date()` returns Day 1 (e.g. `2026-05-13T09:00:00Z`).
+   - Log in as `inventory` / `inv2026`, navigate to `/inventory`, assert the heading.
 
-### Credit 3 — ScenarioImageCard (Unsplash)
+2. **Day 1 — F&B**
+   - Activate F&B tab, fill Beverage Cost = `1500`, click **Submit for review**.
+   - Assert toast `F&B submission sent for review`, badge `Submitted`, day total `€1.500`.
+   - Verify the first row of Recent submissions shows Day 1 / F&B / €1.500 / Submitted.
 
-**New file**
-- `src/components/ScenarioImageCard.tsx` — text renders first, `<img loading="lazy" src="https://source.unsplash.com/400x200/?{kw}">` with CSS opacity fade-in on `onLoad`, `onError` swap to solid `#0f3530` + emoji fallback. Keyword + emoji map per spec, `size: 'sm'|'md'`.
+3. **Day 1 — Rooms**
+   - Switch to Rooms tab, fill Linen & Towels = `400`, submit.
+   - Assert toast, badge, total `€400`.
+   - Verify Recent submissions has both Day 1 rows (Rooms first, F&B second), no Day 2 entries yet.
 
-**Wiring**
-- `Overview.tsx`: one `md` card between KPI row and the change log; scenario derived from `useLiveClock().hour` (4 bands).
-- `Insights.tsx`: one `sm` card per `InsightCard` (uses `insight.department` mapped to scenario; default `finance`).
+4. **Advance to Day 2**
+   - Call `page.clock.setSystemTime(day2)` (e.g. `2026-05-14T09:00:00Z`).
+   - `page.reload()` so the Inventory module recomputes `todayISO`. The previous-session history will be gone (expected — that's a side effect of state-only history), so Day 2 starts from `initialHistory` + new Day 2 submissions.
 
-### Credit 4 — ClickRipple & micro-interactions
+5. **Day 2 — F&B and Rooms**
+   - F&B: Food Cost = `2200`, submit. Assert Submitted, total `€2.200`.
+   - Rooms: Minibar Restock = `650`, submit. Assert Submitted, total `€650`.
+   - Verify Recent submissions top rows: Rooms Day 2 / €650 then F&B Day 2 / €2.200, both with today = Day 2 ISO.
+   - Verify no Day 1 ISO string appears in the first two rows (sanity check that history is correctly scoped to the current session/day).
 
-**New file**
-- `src/styles/interactions.css` — `.ripple-target` (radial gradient via `--ripple-x/y`, opacity transition), `.card-lift` (translateY -2px + shadow on hover), `.nav-active-glow` (lavender ring).
+6. **Cross-day persistence sanity**
+   - Re-activate F&B tab on Day 2 and confirm the inputs are empty (no Day 1 draft bleed) and there is no `Submitted` badge yet for Day 2 before the new submission, by checking before step 5's F&B submit.
 
-**Wiring**
-- Import once in `src/main.tsx`.
-- `KPICard` className gains `ripple-target card-lift`; on `onMouseDown` set `--ripple-x/y` from event coords.
-- shadcn `Button` base class extended with `ripple-target` (single edit in `button.tsx`).
-- `AppSidebar` / nav tab components: add `ripple-target`; active tab adds `nav-active-glow` (replace or augment current active style — keep existing semantic colour).
-- Excluded: form inputs, table rows.
+## Notes / risks
 
-### Credit 5 — LiveClockContext & time-aware headers
+- Uses Playwright's `page.clock.install` + `setSystemTime`, which is supported in modern Playwright. This is the only viable hook because the page reads the date at module load.
+- Reloading between days drops in-memory history; the assertion plan reflects that intentionally rather than asserting a combined two-day history.
+- Selectors mirror the existing specs (`getByRole("tabpanel").filter`, `div.grid` row scoping, `table` last) to stay consistent.
 
-**New file**
-- `src/contexts/LiveClockContext.tsx` — `LiveClockProvider` + `useLiveClock()`. State: `{ hour, minute, dayOfWeek, timeLabel }`. Single `setInterval(60_000)` updating only when `minute` changes; `useMemo` for `timeLabel` to avoid re-render storm. `timeLabel` bands per spec.
+## Deliverable
 
-**Wiring**
-- Wrap providers in `App.tsx` (inside `AuthProvider`, outside `BackendStatusProvider`).
-- `Overview.tsx` header → `"{timeLabel}, {firstName}"` where `firstName` comes from `useAuth().user?.display_name?.split(' ')[0] ?? 'Manager'`. Subtitle = `getNudge(...).headline`.
-- `Dashboard.tsx` header → `"Dashboard · {dayName} {date}"` (formatted DD/MM via `Intl.DateTimeFormat('en-GB')`).
-- `ContextBar.tsx` → append `HH:MM` (24h, DM Mono, `text-muted-foreground`) at far right; subscribes to `useLiveClock` so it ticks every 60s without prop drilling.
-
-### Carry-forward guards (no regressions)
-- Nav remains 4 tabs.
-- All new fetch-shaped code (none here, but Insights/KPI sources unchanged) keeps `APIResponse<T>` envelope.
-- TierGate on Insights/Telegram/Audit unchanged.
-- Tokens: bg `#0b2b27`, card `#0f3530`, accent `#b8a9e8`, DM Sans/Mono — used via existing semantic tokens; no hardcoded hex inside Tailwind classes (only in the new CSS file where ripple gradient needs literal rgba).
-
-### Definition of Done
-- Nudge bar shows on the 4 listed routes, dismiss persists per session, no flash on reload (read sessionStorage during initial state).
-- Hover tooltip with sparkline + delta + context on KPI cards for Manager/Admin only.
-- Scenario card on Overview (time-driven) and one per Insights card; emoji fallback on image error.
-- Ripple + lift on KPI cards and buttons; active nav tab glows.
-- Live clock updates every 60s; Overview/Dashboard headers and Context Bar reflect it.
-- `tsc --noEmit` clean, `vite build` clean, no new warnings.
-
-### Out of scope
-- No new npm packages, no Framer Motion, no backend/contract changes, no auth/RLS changes, no DataVault edits.
+- New file: `tests/inventory-multi-date.spec.ts`
+- No production code changes.
