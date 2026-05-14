@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRequireRole } from "@/contexts/AuthContext";
 import { useInventory } from "@/hooks/useInventory";
+import { submitInventory, type InventoryEntry } from "@/services/api";
 import { toast } from "sonner";
 import { Check, Save } from "lucide-react";
 
@@ -192,15 +193,38 @@ const Inventory = () => {
   const handleSubmit = (dept: string) => {
     if (!validateDept(dept)) return;
     const total = totals[dept] ?? 0;
+    const deptValues = values[dept] ?? {};
+    const entries: InventoryEntry[] = departmentLines[dept]
+      .filter((line) => {
+        const v = deptValues[line];
+        return v && v.amount.trim() !== "" && Number(v.amount) > 0;
+      })
+      .map((line) => ({
+        id: `${dept}-${todayISO}-${line.replace(/\s+/g, "-").toLowerCase()}`,
+        department: dept,
+        category: line,
+        quantity: 1,
+        unit: "lot",
+        value: Number(deptValues[line].amount),
+        date: todayISO,
+        submittedBy: "inventory",
+        status: "submitted",
+      }));
+
     setStatuses((prev) => ({ ...prev, [dept]: "Submitted" }));
     localStorage.setItem(
       draftStorageKey(dept, todayISO),
-      JSON.stringify({ values: values[dept] ?? {}, status: "Submitted" }),
+      JSON.stringify({ values: deptValues, status: "Submitted" }),
     );
     setHistory((prev) => [
       { date: todayISO, department: departmentLabels[dept], total, status: "Submitted" },
       ...prev,
     ]);
+
+    const payload = { date: todayISO, department: dept, total, entries };
+    window.dispatchEvent(new CustomEvent("pp:inventory-submit", { detail: payload }));
+    void submitInventory(entries);
+
     toast.success(`${departmentLabels[dept]} submission sent for review`, {
       description: `Total €${total.toLocaleString("de-DE")} forwarded to the Finance Manager`,
     });
