@@ -40,7 +40,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-hidden flex-col flex items-center justify-center">
       <GeoBg />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
