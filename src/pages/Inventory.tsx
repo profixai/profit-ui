@@ -139,11 +139,7 @@ const Inventory = () => {
     values[dept]?.[line] || { amount: "", notes: "" };
 
   const setVal = (dept: string, line: string, field: "amount" | "notes", v: string) => {
-    let nextValue = v;
-    if (field === "notes") {
-      const collapsed = v.replace(/\s+/g, " ");
-      nextValue = collapsed === " " ? "" : collapsed;
-    }
+    const nextValue = field === "notes" ? normalizeNotesInput(v) : v;
     setValues((prev) => ({
       ...prev,
       [dept]: { ...prev[dept], [line]: { ...getVal(dept, line), [field]: nextValue } },
