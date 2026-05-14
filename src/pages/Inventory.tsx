@@ -70,6 +70,15 @@ const todayISO = new Date().toISOString().split("T")[0];
  */
 export const normalizeNotesInput = (v: string): string => v.replace(/^\s+|\s+$/g, "");
 
+/**
+ * Normalize a notes value for persistence (autosave, draft save, submit).
+ * - Applies typing-time normalization (trims outer whitespace).
+ * - Collapses any run of internal whitespace into a single ASCII space, so
+ *   server-side data can never contain repeated whitespace.
+ */
+export const normalizeNotesForStorage = (v: string): string =>
+  normalizeNotesInput(v).replace(/\s+/g, " ");
+
 const lineEntrySchema = z.object({
   amount: z
     .string()
@@ -129,7 +138,7 @@ const Inventory = () => {
         const normalized: LineValues = Object.fromEntries(
           Object.entries(deptValues).map(([line, v]) => [
             line,
-            { amount: v.amount, notes: v.notes.trim() },
+            { amount: v.amount, notes: normalizeNotesForStorage(v.notes) },
           ]),
         );
         const hasContent = Object.values(normalized).some((v) => v.amount.trim() !== "" || v.notes !== "");
@@ -201,7 +210,7 @@ const Inventory = () => {
     const normalized: LineValues = Object.fromEntries(
       Object.entries(deptValues).map(([line, v]) => [
         line,
-        { amount: v.amount, notes: v.notes.trim() },
+        { amount: v.amount, notes: normalizeNotesForStorage(v.notes) },
       ]),
     );
     setValues((prev) => ({ ...prev, [dept]: normalized }));
@@ -224,7 +233,7 @@ const Inventory = () => {
         return v && v.amount.trim() !== "" && Number(v.amount) > 0;
       })
       .map((line) => {
-        const trimmedNotes = deptValues[line].notes.trim();
+        const trimmedNotes = normalizeNotesForStorage(deptValues[line].notes);
         return {
           id: `${dept}-${todayISO}-${line.replace(/\s+/g, "-").toLowerCase()}`,
           department: dept,
