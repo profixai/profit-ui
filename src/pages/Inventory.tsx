@@ -61,6 +61,15 @@ const statusColor: Record<SubmissionStatus, string> = {
 const today = new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 const todayISO = new Date().toISOString().split("T")[0];
 
+/**
+ * Normalize a notes textarea value at typing-time.
+ * - Strips all leading whitespace immediately.
+ * - Strips all trailing whitespace immediately.
+ * - Preserves internal spacing (single, double, or more spaces between words stay as typed).
+ * - Whitespace-only input collapses to "".
+ */
+export const normalizeNotesInput = (v: string): string => v.replace(/^\s+|\s+$/g, "");
+
 const lineEntrySchema = z.object({
   amount: z
     .string()
@@ -139,11 +148,7 @@ const Inventory = () => {
     values[dept]?.[line] || { amount: "", notes: "" };
 
   const setVal = (dept: string, line: string, field: "amount" | "notes", v: string) => {
-    let nextValue = v;
-    if (field === "notes") {
-      const collapsed = v.replace(/\s+/g, " ");
-      nextValue = collapsed === " " ? "" : collapsed;
-    }
+    const nextValue = field === "notes" ? normalizeNotesInput(v) : v;
     setValues((prev) => ({
       ...prev,
       [dept]: { ...prev[dept], [line]: { ...getVal(dept, line), [field]: nextValue } },
