@@ -7,27 +7,21 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth, saveLastRoute } from "@/contexts/AuthContext";
 import { PropertyProvider } from "@/contexts/PropertyContext";
 import { BackendStatusProvider } from "@/contexts/BackendStatusContext";
-import { TierProvider } from "@/contexts/TierContext";
 import { LiveClockProvider } from "@/contexts/LiveClockContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import Dashboard from "./pages/Dashboard";
-import Insights from "./pages/Insights";
 import DataVault from "./pages/DataVault";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import ProfitLoss from "./pages/ProfitLoss";
-import Overview from "./pages/Overview";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import NotFound from "./pages/NotFound";
-import WhyProfix from "./pages/WhyProfix";
 
 const queryClient = new QueryClient();
 
 const RootRedirect = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role === "inventory") return <Navigate to="/data" replace />;
-  return <Navigate to="/overview" replace />;
+  return <Navigate to="/data" replace />;
 };
 
 const RouteTracker = () => {
@@ -49,7 +43,6 @@ const App = () => (
       <AuthProvider>
         <LiveClockProvider>
         <BackendStatusProvider>
-        <TierProvider initial="team">
         <PropertyProvider>
           <Toaster />
           <Sonner />
@@ -58,23 +51,24 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<RootRedirect />} />
-              {/* ── MVP Routes ─────────────────────────────── */}
-              <Route path="/overview" element={<ProtectedRoute allowedRoles={["manager", "direction"]}><Overview /></ProtectedRoute>} />
-              <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["manager", "direction"]}><Dashboard /></ProtectedRoute>} />
-              <Route path="/pl" element={<ProtectedRoute allowedRoles={["manager", "direction"]}><ProfitLoss /></ProtectedRoute>} />
-              <Route path="/insights" element={<ProtectedRoute allowedRoles={["manager", "direction"]}><Insights /></ProtectedRoute>} />
+              {/* ── Simplified MVP Routes ──────────────────────
+                  Single user model. Surfaces: Data Vault (invoices),
+                  Invoice Detail, monthly cost-only P&L, Settings. */}
               <Route path="/data" element={<ProtectedRoute><DataVault /></ProtectedRoute>} />
+              <Route path="/pl" element={<ProtectedRoute><ProfitLoss /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-              <Route path="/why-profix" element={<ProtectedRoute allowedRoles={["direction"]}><WhyProfix /></ProtectedRoute>} />
-              {/* Invoice approval (mock data, v0 design) — reachable by URL, not in main nav */}
               <Route path="/invoices" element={<Navigate to="/invoices/INV-2024-001" replace />} />
-              <Route path="/invoices/:id" element={<ProtectedRoute allowedRoles={["manager", "direction"]}><InvoiceDetail /></ProtectedRoute>} />
-              {/* Non-MVP routes removed from navigation but kept as catch-all */}
+              <Route path="/invoices/:id" element={<ProtectedRoute><InvoiceDetail /></ProtectedRoute>} />
+              {/* Non-MVP routes (dashboard, overview, insights, why-profix,
+                  inventory, multi-property, ESG, CAPEX, ledger, materiality,
+                  reporting, roadmap, enterprise, upload) intentionally
+                  removed from active routing for the simplified MVP. The
+                  page files remain in src/pages/ in case they are revived;
+                  any URL hits fall through to NotFound. */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </PropertyProvider>
-        </TierProvider>
         </BackendStatusProvider>
         </LiveClockProvider>
       </AuthProvider>

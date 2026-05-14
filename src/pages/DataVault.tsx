@@ -37,7 +37,7 @@ function fmtAmount(v: number | null, currency: string | null) {
 }
 
 export default function DataVault() {
-  const [tab, setTab] = useState<"upload" | "invoices">("upload");
+  const [tab, setTab] = useState<"upload" | "invoices">("invoices");
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [pendingFile, setPendingFile] = useState<{ name: string; size: number } | null>(null);

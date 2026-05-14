@@ -1,19 +1,14 @@
 import { ReactNode, useState, useCallback } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { useAuth, UserRole } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { AskProfixPanel } from "@/components/AskProfixPanel";
-import { ContextBar } from "@/components/ContextBar";
-import { ContextualNudgeBar } from "@/components/ContextualNudgeBar";
 import { GeoBg } from "@/components/GeoBg";
 
 import {
-  LayoutDashboard,
   BarChart2,
-  Sparkles,
   Settings,
   Upload,
   LogOut,
-  Bell,
   Menu,
   X,
   ChevronDown,
@@ -33,18 +28,13 @@ interface NavItem {
   title: string;
   url: string;
   icon: React.ElementType;
-  roles: UserRole[];
 }
 
-// ─── MVP-only navigation ──────────────────────────────────────
+// ─── Simplified MVP navigation: single user, three surfaces.
 const navItems: NavItem[] = [
-  { title: "Overview",   url: "/overview",   icon: LayoutDashboard, roles: ["manager", "direction"] },
-  { title: "Dashboard",  url: "/dashboard",  icon: BarChart2,       roles: ["manager", "direction"] },
-  { title: "P&L",        url: "/pl",         icon: BarChart2,       roles: ["manager", "direction"] },
-  { title: "Insights",   url: "/insights",   icon: Sparkles,        roles: ["manager", "direction"] },
-  { title: "Data Vault", url: "/data",       icon: Upload,          roles: ["manager", "direction", "inventory"] },
-  { title: "Settings",   url: "/settings",   icon: Settings,        roles: ["manager", "direction", "inventory"] },
-  { title: "Why Profix", url: "/why-profix", icon: Sparkles,        roles: ["direction"] },
+  { title: "Data Vault", url: "/data",     icon: Upload },
+  { title: "P&L",        url: "/pl",       icon: BarChart2 },
+  { title: "Settings",   url: "/settings", icon: Settings },
 ];
 
 interface AppShellProps {
@@ -52,7 +42,7 @@ interface AppShellProps {
 }
 
 export const AppShell = ({ children }: AppShellProps) => {
-  const { user, role, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -71,7 +61,7 @@ export const AppShell = ({ children }: AppShellProps) => {
     navigate("/login");
   };
 
-  const visibleNav = navItems.filter((item) => role && item.roles.includes(role));
+  const visibleNav = navItems;
   const isActive = (url: string) => location.pathname === url;
 
   return (
@@ -114,13 +104,6 @@ export const AppShell = ({ children }: AppShellProps) => {
 
         {/* ── Right section ─────────────────────────────────── */}
         <div className="flex items-center gap-3">
-          <button className="relative p-1.5 rounded-md hover:bg-secondary transition-colors">
-            <Bell className="h-4 w-4 text-muted-foreground" />
-            <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-destructive text-[9px] font-semibold flex items-center justify-center text-destructive-foreground">
-              3
-            </span>
-          </button>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-1.5 p-1 rounded-md hover:bg-secondary transition-colors">
@@ -136,7 +119,6 @@ export const AppShell = ({ children }: AppShellProps) => {
               {user && (
                 <div className="px-2 py-1.5 border-b">
                   <p className="text-xs font-medium">{user.displayName}</p>
-                  <p className="text-[10px] text-muted-foreground">{role}</p>
                 </div>
               )}
               <DropdownMenuItem className="text-xs" onClick={() => navigate("/settings")}>
@@ -170,10 +152,6 @@ export const AppShell = ({ children }: AppShellProps) => {
           ))}
         </div>
       )}
-
-      {/* ── Context Bar ─────────────────────────────────────── */}
-      <ContextBar />
-      <ContextualNudgeBar />
 
       {/* ── Main Content ────────────────────────────────────── */}
       <main className="flex-1 overflow-auto p-4 lg:p-6 relative z-[1]">

@@ -1,7 +1,10 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 
-
-export type UserRole = "inventory" | "manager" | "direction";
+// Simplified MVP: single user type. The legacy role union is kept so
+// non-MVP components still in src/ continue to type-check; "user" is
+// what the active login flow always assigns. Nothing in the active
+// MVP UI should branch on role.
+export type UserRole = "user" | "inventory" | "manager" | "direction";
 
 interface User {
   username: string;
@@ -16,10 +19,8 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const MOCK_CREDENTIALS: Record<string, { password: string; role: UserRole; displayName: string }> = {
-  inventory: { password: "inv2026", role: "inventory", displayName: "Inventory Staff" },
-  manager: { password: "mgr2026", role: "manager", displayName: "Hotel Manager" },
-  direction: { password: "dir2026", role: "direction", displayName: "Director" },
+const MOCK_CREDENTIALS: Record<string, { password: string; displayName: string }> = {
+  demo: { password: "demo2026", displayName: "Demo User" },
 };
 
 const SESSION_KEY = "pp_user";
@@ -40,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback((username: string, password: string): boolean => {
     const cred = MOCK_CREDENTIALS[username];
     if (cred && cred.password === password) {
-      const u = { username, role: cred.role, displayName: cred.displayName };
+      const u: User = { username, role: "user", displayName: cred.displayName };
       setUser(u);
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(u));
       return true;
@@ -67,16 +68,12 @@ export function useAuth() {
   return ctx;
 }
 
-export function useRequireRole(allowed: UserRole[]) {
-  const { role } = useAuth();
-  // We use a deferred check — ProtectedRoute handles redirect.
-  // This hook is an additional guard for programmatic checks.
+// Retained for backwards compatibility with any non-MVP page still importing
+// it. Under the simplified single-user model this is a no-op.
+export function useRequireRole(_allowed: UserRole[]) {
   useEffect(() => {
-    if (role && !allowed.includes(role)) {
-      // Will be caught by ProtectedRoute, but log for debugging
-      console.warn(`Role "${role}" not in allowed roles: ${allowed.join(", ")}`);
-    }
-  }, [role, allowed]);
+    /* no-op */
+  }, []);
 }
 
 export function saveLastRoute(path: string) {
