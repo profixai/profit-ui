@@ -209,7 +209,6 @@ const Inventory = () => {
         date: todayISO,
         submittedBy: "inventory",
         status: "submitted",
-        notes: deptValues[line].notes || undefined,
       }));
 
     setStatuses((prev) => ({ ...prev, [dept]: "Submitted" }));
