@@ -1,40 +1,25 @@
-# Plan: Day-scoped draft isolation Playwright test
+## Goal
+As the user types in any inventory notes textarea, collapse runs of whitespace into a single space so the visible value, component state, and autosaved draft never contain double spaces.
 
-Add `tests/inventory-draft-day-isolation.spec.ts` verifying that drafts saved on one simulated day stay tied to that day after a reload, are invisible on the next day, and can still be submitted on their original date.
+## Change
+Single edit in `src/pages/Inventory.tsx`, inside `setVal`:
 
-## Flow
+- When `field === "notes"`, normalize the incoming value before calling `setValues`:
+  - Replace any run of whitespace characters (`/\s+/g`) with a single ASCII space.
+  - If the result is a single space (i.e. the user has only typed whitespace), store `""` instead so the field appears empty and the autosave `hasContent` check skips it.
+- `amount` handling stays unchanged.
 
-1. **Setup**
-   - Clear `pp_inventory_draft_{fb,rooms}_{day1ISO,day2ISO}` and `sessionStorage` via `addInitScript`.
-   - `page.clock.install({ time: day1Date })` (Day 1 = 2026-05-13, Day 2 = 2026-05-14).
-   - Sign in as `inventory` / `inv2026`, navigate to `/inventory`.
+Because the textarea is controlled by `values[dept][line].notes`, the normalized value is what the user sees — double spaces visually collapse on the next keystroke, and tabs/newlines pasted in are flattened to single spaces.
 
-2. **Day 1 — save drafts in F&B and Rooms** (no submit)
-   - F&B: fill Beverage Cost = `1500`, click **Save draft** → toast `F&B draft saved`, `Draft` badge visible.
-   - Rooms: fill Linen & Towels = `400`, click **Save draft** → toast `Rooms draft saved`, `Draft` badge visible.
+## Trade-offs
+- The user cannot type two spaces in a row; the second space is swallowed immediately. This is the intended behavior per the request.
+- Pasted multi-line notes become a single line. Acceptable for short operational notes (≤280 chars).
 
-3. **Reload on Day 1 — drafts rehydrate**
-   - F&B panel: `Draft` badge visible, Beverage Cost input = `1500`, day total `€1.500`, inputs editable (not `disabled`).
-   - Rooms panel: `Draft` badge visible, Linen & Towels input = `400`, day total `€400`.
-   - Recent submissions table contains no row dated `day1ISO` (drafts aren't pushed to history).
+## Out of scope
+- `handleSaveDraft`, `handleSubmit`, autosave effect — already trim and will continue to work on the already-normalized value.
+- No contract or test changes.
 
-4. **Advance clock to Day 2 and reload — drafts must be invisible**
-   - `page.clock.setSystemTime(day2Date)` + `page.reload()`.
-   - F&B and Rooms tabs: no `Draft` or `Submitted` badge, all inputs empty (`""`), day total `€0`, Save draft / Submit buttons enabled.
-   - History table contains no `day1ISO` rows from drafts and no `day2ISO` rows yet.
-
-5. **Travel back to Day 1 and submit the preserved drafts**
-   - `page.clock.setSystemTime(day1Date)` + `page.reload()`.
-   - F&B: confirm `Draft` badge + Beverage Cost = `1500` rehydrated, click **Submit for review** → toast `F&B submission sent for review`, badge flips to `Submitted`, inputs become disabled.
-   - Rooms: same flow, submit Linen & Towels `400` → `Submitted`.
-   - History top rows: Rooms / `day1ISO` / `€400` / Submitted, then F&B / `day1ISO` / `€1.500` / Submitted. No `day2ISO` rows.
-
-## Technical notes
-
-- Reuses the `playwright-fixture` import and selector style from `tests/inventory-multi-date.spec.ts` and `tests/inventory-badge-reset.spec.ts` (tabpanel filters, `div.grid` row scoping, `de-DE` number formatting).
-- Relies on existing app behavior: `Inventory.tsx` keys drafts by `pp_inventory_draft_{dept}_{todayISO}` and the hydration `useEffect` reads only the current `todayISO`, so Day 2 naturally skips Day 1 drafts.
-- No production code changes.
-
-## Files
-
-- New: `tests/inventory-draft-day-isolation.spec.ts`
+## Verification
+- Type "hello   world" → field shows "hello world".
+- Paste "a\t\tb\nc" → field shows "a b c".
+- Type only spaces → field stays empty; nothing written to localStorage for that line.
