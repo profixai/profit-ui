@@ -117,11 +117,17 @@ const Inventory = () => {
       Object.keys(departmentLines).forEach((dept) => {
         const deptValues = values[dept];
         if (!deptValues) return;
-        const hasContent = Object.values(deptValues).some((v) => v.amount || v.notes);
+        const normalized: LineValues = Object.fromEntries(
+          Object.entries(deptValues).map(([line, v]) => [
+            line,
+            { amount: v.amount, notes: v.notes.trim() },
+          ]),
+        );
+        const hasContent = Object.values(normalized).some((v) => v.amount.trim() !== "" || v.notes !== "");
         if (!hasContent) return;
         localStorage.setItem(
           draftStorageKey(dept, todayISO),
-          JSON.stringify({ values: deptValues, status: statuses[dept] ?? "Draft" }),
+          JSON.stringify({ values: normalized, status: statuses[dept] ?? "Draft" }),
         );
         setLastSavedAt((prev) => ({ ...prev, [dept]: Date.now() }));
       });
@@ -181,10 +187,18 @@ const Inventory = () => {
 
   const handleSaveDraft = (dept: string) => {
     if (!validateDept(dept)) return;
+    const deptValues = values[dept] ?? {};
+    const normalized: LineValues = Object.fromEntries(
+      Object.entries(deptValues).map(([line, v]) => [
+        line,
+        { amount: v.amount, notes: v.notes.trim() },
+      ]),
+    );
+    setValues((prev) => ({ ...prev, [dept]: normalized }));
     setStatuses((prev) => ({ ...prev, [dept]: "Draft" }));
     localStorage.setItem(
       draftStorageKey(dept, todayISO),
-      JSON.stringify({ values: values[dept] ?? {}, status: "Draft" }),
+      JSON.stringify({ values: normalized, status: "Draft" }),
     );
     setLastSavedAt((prev) => ({ ...prev, [dept]: Date.now() }));
     toast.success(`${departmentLabels[dept]} draft saved`);
