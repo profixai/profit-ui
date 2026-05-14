@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Upload as UploadIcon, FileText, Eye, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { EmptyState } from "@/components/ui/states";
 import { ConfidencePill } from "@/components/invoices/ConfidencePill";
 import { InvoiceDetailDrawer } from "@/components/InvoiceDetailDrawer";
-import { uploadInvoice, getInvoiceJob, mockInvoiceJobs } from "@/services/api";
+import { uploadInvoice, getInvoiceJob, getInvoices, mockInvoiceJobs } from "@/services/api";
 import { API_BASE } from "@/config/env";
 import type { InvoiceJob } from "@/contracts";
 
@@ -40,10 +40,35 @@ export default function DataVault() {
   const [tab, setTab] = useState<"upload" | "invoices">("invoices");
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [pendingFile, setPendingFile] = useState<{ name: string; size: number } | null>(null);
   const [jobs, setJobs] = useState<InvoiceJob[]>(() => (API_BASE ? [] : mockInvoiceJobs()));
   const [selected, setSelected] = useState<InvoiceJob | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Fetch invoices on mount
+  useEffect(() => {
+    if (!API_BASE) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchInvoices = async () => {
+      setLoading(true);
+      const res = await getInvoices(50, 0);
+      console.log('[DataVault] getInvoices response:', res);
+      console.log('[DataVault] res.ok:', res.ok, 'res.data:', res.data);
+      if (res.ok && res.data) {
+        console.log('[DataVault] Setting jobs to:', res.data.items);
+        setJobs(res.data.items);
+      } else {
+        console.error('[DataVault] Failed - res.ok:', res.ok, 'res.error:', res.error);
+      }
+      setLoading(false);
+    };
+
+    fetchInvoices();
+  }, []);
 
   const pollJob = useCallback(async (jobId: string) => {
     for (let i = 0; i < 10; i++) {

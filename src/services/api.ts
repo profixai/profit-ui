@@ -139,7 +139,8 @@ export async function fetchWithFallback<T>(
       console.warn(`[api] ${path} → ${res.status}: ${text}`);
       return delay(mockFactory());
     }
-    return res.json();
+    const data = await res.json();
+    return ok(data);
   } catch (e) {
     console.warn(`[api] ${path} fetch failed, using mock:`, e);
     return delay(mockFactory());
@@ -356,6 +357,13 @@ export function mockInvoiceJobs(): InvoiceJob[] {
       data_vault_key: "dv/job-003",
     },
   ];
+}
+
+export async function getInvoices(limit = 50, offset = 0): Promise<APIResponse<{ items: InvoiceJob[]; count: number }>> {
+  return fetchWithFallback<{ items: InvoiceJob[]; count: number }>(
+    `/upload/invoices?limit=${limit}&offset=${offset}`,
+    () => ({ items: mockInvoiceJobs(), count: mockInvoiceJobs().length }),
+  );
 }
 
 export async function uploadInvoice(file: File): Promise<APIResponse<InvoiceUploadResponse>> {
