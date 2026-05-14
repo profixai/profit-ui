@@ -93,8 +93,17 @@ const Login = () => {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            <button className="text-primary hover:underline font-medium">
+          <p className="text-center text-xs text-muted-foreground mt-4">
+            Need an account for your property?{" "}
+            <button
+              type="button"
+              onClick={() =>
+                toast.info("Property access", {
+                  description: "Email access@profix.app and we'll set up your hotel within one business day.",
+                })
+              }
+              className="text-primary hover:underline focus-visible:underline focus-visible:outline-none font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               Property access
             </button>
           </p>
