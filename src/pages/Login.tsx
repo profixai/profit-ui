@@ -9,11 +9,7 @@ import { useAuth, getLastRoute } from "@/contexts/AuthContext";
 import { GeoBg } from "@/components/GeoBg";
 import { toast } from "sonner";
 
-const roleHome: Record<string, string> = {
-  inventory: "/data",
-  manager: "/overview",
-  direction: "/overview",
-};
+const HOME_ROUTE = "/data";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -24,7 +20,7 @@ const Login = () => {
   useEffect(() => {
     if (user) {
       const lastRoute = getLastRoute();
-      navigate(lastRoute || roleHome[user.role] || "/overview", { replace: true });
+      navigate(lastRoute || HOME_ROUTE, { replace: true });
     }
   }, [user, navigate]);
 
@@ -32,10 +28,9 @@ const Login = () => {
     e.preventDefault();
     const success = login(username, password);
     if (success) {
-      const role = username === "inventory" ? "inventory" : username === "manager" ? "manager" : "direction";
-      navigate(roleHome[role] || "/overview");
+      navigate(HOME_ROUTE);
     } else {
-      toast.error("Invalid credentials. Try: inventory/inv2026, manager/mgr2026, or direction/dir2026");
+      toast.error("Invalid credentials. Try: demo / demo2026");
     }
   };
 
@@ -65,7 +60,7 @@ const Login = () => {
                 <Input
                   id="username"
                   type="text"
-                  placeholder="inventory / manager / direction"
+                  placeholder="demo"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="pl-10"

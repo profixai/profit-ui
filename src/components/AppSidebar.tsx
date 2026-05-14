@@ -42,14 +42,11 @@ interface NavItem {
   roles: UserRole[];
 }
 
-// Issue #22 — exactly 6 MVP items, in this order.
+// Simplified MVP: exactly 3 items for single-user product.
 const mvpNav: NavItem[] = [
-  { title: "Overview", url: "/overview", icon: Compass, roles: ["manager", "direction"] },
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["manager", "direction"] },
-  { title: "P&L", url: "/pl", icon: BarChart2, roles: ["manager", "direction"] },
-  { title: "Insights", url: "/insights", icon: Sparkles, roles: ["manager", "direction"] },
-  { title: "Data Vault", url: "/data", icon: Upload, roles: ["manager", "inventory"] },
-  { title: "Settings", url: "/settings", icon: Settings, roles: ["manager", "direction", "inventory"] },
+  { title: "Data Vault", url: "/data", icon: Upload, roles: ["user"] },
+  { title: "P&L", url: "/pl", icon: BarChart2, roles: ["user"] },
+  { title: "Settings", url: "/settings", icon: Settings, roles: ["user"] },
 ];
 
 // Hidden behind VITE_FEATURE_LAB=true. Routes still exist in App.tsx; only the
@@ -69,16 +66,18 @@ const labNav: NavItem[] = [
 
 const SHOW_LAB_ROUTES = import.meta.env.VITE_FEATURE_LAB === "true";
 
-const roleLabel: Record<UserRole, string> = {
+const roleLabel: Partial<Record<UserRole, string>> = {
   direction: "Direction",
   manager: "Manager",
   inventory: "Inventory Staff",
+  user: "User",
 };
 
-const roleColor: Record<UserRole, string> = {
+const roleColor: Partial<Record<UserRole, string>> = {
   direction: "bg-primary/20 text-primary-foreground border-primary/30",
   manager: "bg-positive/20 text-positive border-positive/30",
   inventory: "bg-accent/20 text-accent-foreground border-accent/30",
+  user: "bg-muted text-foreground border-muted",
 };
 
 export function AppSidebar() {
