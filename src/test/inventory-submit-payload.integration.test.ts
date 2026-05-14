@@ -23,7 +23,6 @@ type InventoryEntry = import("@/services/api").InventoryEntry;
  * call, intercept it, and inspect the request body.
  */
 
-const API_BASE = "https://test.api.profix.local";
 
 // Build the same shape Inventory.tsx produces in handleSubmit, applying
 // normalizeNotesForStorage on the raw notes the user typed/pasted.
