@@ -52,8 +52,7 @@ const Login = () => {
           <h1 className="text-3xl font-extrabold tracking-widest text-foreground">
             PROFi<span className="text-primary">X</span>
           </h1>
-          <p className="text-sm text-primary mt-1 tracking-wide">AI-Driven Cost Clarity</p>
-          <p className="text-xs text-muted-foreground">For Hotel Finance Teams</p>
+          <p className="text-xs text-muted-foreground mt-1">For Hotel Finance Teams</p>
         </div>
 
         <div className="bg-card rounded-xl border p-6 shadow-sm">
